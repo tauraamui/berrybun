@@ -22,6 +22,7 @@ const (
 )
 
 var (
+	count  = 0
 	sprite *ebiten.Image
 )
 
@@ -48,12 +49,22 @@ func update(screen *ebiten.Image) error {
 	if ebiten.IsDrawingSkipped() {
 		return nil
 	}
-	w, h := sprite.Size()
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(0.5, 0.5)
-	op.GeoM.Translate(float64((screenWidth/2)-(w/4)), float64((screenHeight/2)-(h/4)))
 
+	count++
+
+	if ebiten.IsDrawingSkipped() {
+		return nil
+	}
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
+	op.GeoM.Translate(screenWidth/2, screenHeight/2)
+	i := (count / 5) % frameNum
+	sx, sy := frameOX+i*frameWidth, frameOY
+	r := image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)
+	op.SourceRect = &r
 	screen.DrawImage(sprite, op)
+	return nil
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS: %0.2f", ebiten.CurrentFPS()))
 	return nil
