@@ -59,7 +59,7 @@ func update(screen *ebiten.Image) error {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
-	i := (count / 5) % frameNum
+	i := (count / 30) % frameNum
 	sx, sy := frameOX+i*frameWidth, frameOY
 	r := image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)
 	op.SourceRect = &r
