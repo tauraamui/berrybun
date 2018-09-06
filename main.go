@@ -26,10 +26,11 @@ const (
 )
 
 var (
-	count      = 0
-	sprite     *ebiten.Image
-	gamepadIDs = map[int]struct{}{}
-	frameOY    = 0
+	count          = 0
+	sprite         *ebiten.Image
+	gamepadIDs     = map[int]struct{}{}
+	frameOY        = 0
+	animationSpeed = 8
 )
 
 func init() {
@@ -103,7 +104,7 @@ func update(screen *ebiten.Image) error {
 	//move sprite's origin to half of screen in width and height
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
 	//speed of changing from one animation frame to another
-	i := (count / 5) % frameNum
+	i := (count / animationSpeed) % frameNum
 	sx, sy := frameOX+i*frameWidth, frameOY
 	r := image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)
 	op.SourceRect = &r
@@ -115,8 +116,18 @@ func update(screen *ebiten.Image) error {
 
 	if axes[0] >= 0.5 {
 		frameOY = 32
+		if axes[0] >= 0.9 {
+			if animationSpeed > 5 {
+				animationSpeed--
+			} else {
+				animationSpeed = 5
+			}
+		} else {
+			animationSpeed = 8
+		}
 	} else {
 		frameOY = 0
+		animationSpeed = 8
 	}
 
 	if len(ids) > 0 {
