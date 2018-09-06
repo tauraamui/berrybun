@@ -64,7 +64,6 @@ func update(screen *ebiten.Image) error {
 	r := image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)
 	op.SourceRect = &r
 	screen.DrawImage(sprite, op)
-	return nil
 
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS: %0.2f", ebiten.CurrentFPS()))
 	return nil
