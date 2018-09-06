@@ -57,7 +57,9 @@ func update(screen *ebiten.Image) error {
 	}
 
 	op := &ebiten.DrawImageOptions{}
+	//move sprite backwards and up by half of its width and height
 	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
+	//move sprite's origin to half of screen in width and height
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
 	//speed of changing from one animation frame to another
 	i := (count / 5) % frameNum
