@@ -60,7 +60,7 @@ func update(screen *ebiten.Image) error {
 	op.GeoM.Translate(-float64(frameWidth)/2, -float64(frameHeight)/2)
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
 	//speed of changing from one animation frame to another
-	i := (count / 7) % frameNum
+	i := (count / 5) % frameNum
 	sx, sy := frameOX+i*frameWidth, frameOY
 	r := image.Rect(sx, sy, sx+frameWidth, sy+frameHeight)
 	op.SourceRect = &r
