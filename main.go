@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/tauraamui/berrybun/core"
 )
 
 const (
@@ -35,7 +36,7 @@ var (
 
 func init() {
 
-	imgFile, err := os.Open("./res/image.png")
+	imgFile, err := os.Open("./res/bunny.png")
 
 	if err != nil {
 		panic(err)
@@ -141,7 +142,10 @@ func update(screen *ebiten.Image) error {
 }
 
 func main() {
-	if err := ebiten.Run(update, screenWidth, screenHeight, 2, "Berrybun Game"); err != nil {
+	var game = core.Game{}
+	game.Init()
+
+	if err := ebiten.Run(game.Update, screenWidth, screenHeight, 2, "Berrybun Game"); err != nil {
 		panic(err)
 	}
 }
