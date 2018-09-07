@@ -122,6 +122,7 @@ type Player struct {
 	animation         *Animation
 	idleAnimation     *Animation
 	hopRightAnimation *Animation
+	hopLeftAnimation  *Animation
 }
 
 func (p *Player) Init() {
@@ -175,6 +176,19 @@ func (p *Player) Init() {
 		count:        -1,
 	}
 
+	p.hopLeftAnimation = &Animation{
+		id:           1,
+		spritesheet:  animSpriteSheet,
+		frameWidth:   32,
+		frameHeight:  32,
+		frame0X:      0,
+		frame0Y:      64,
+		frameNum:     6,
+		defaultSpeed: 8,
+		speed:        8,
+		count:        -1,
+	}
+
 	p.animation = p.idleAnimation
 }
 
@@ -190,6 +204,21 @@ func (p *Player) Update(screen *ebiten.Image) error {
 				p.animation = p.hopRightAnimation
 			}
 			if joystick1 >= 0.80 {
+				if p.animation.speed > 5 {
+					p.animation.speed--
+				}
+			} else {
+				if p.animation.speed < 8 {
+					p.animation.speed++
+				}
+			}
+		} else if joystick1 <= -0.30 {
+			if p.animation.id != p.hopLeftAnimation.id {
+				p.animation.Reset()
+				p.hopLeftAnimation.Reset()
+				p.animation = p.hopLeftAnimation
+			}
+			if joystick1 <= -0.80 {
 				if p.animation.speed > 5 {
 					p.animation.speed--
 				}
