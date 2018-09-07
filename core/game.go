@@ -15,8 +15,6 @@ const (
 	screenHeight = 240
 )
 
-var count = 0
-
 type GamePadInput struct {
 	id   int
 	axes []float64
@@ -38,13 +36,6 @@ type Game struct {
 func (g *Game) Init() {
 	g.player = &Player{
 		game: g,
-		animSpriteSheetLocation: "./res/bunny.png",
-		frameOX:                 0,
-		frameOY:                 0,
-		frameWidth:              32,
-		frameHeight:             32,
-		frameNum:                6,
-		animationSpeed:          8,
 	}
 	g.player.Init()
 }
@@ -127,76 +118,130 @@ func (g *Game) Update(screen *ebiten.Image) error {
 }
 
 type Player struct {
-	game                    *Game
-	animSpriteSheetLocation string
-	animSpriteSheet         *ebiten.Image
-	frameOX                 int
-	frameOY                 int
-	frameWidth              int
-	frameHeight             int
-	frameNum                int
-	animationSpeed          float32
+	game              *Game
+	animation         *Animation
+	idleAnimation     *Animation
+	hopRightAnimation *Animation
 }
 
 func (p *Player) Init() {
-	imgFile, err := os.Open(p.animSpriteSheetLocation)
+
+	bunnyAnimationsFile, err := os.Open("./res/bunny.png")
 
 	if err != nil {
 		panic(err)
 	}
 
-	defer imgFile.Close()
+	defer bunnyAnimationsFile.Close()
 
-	img, _, err := image.Decode(imgFile)
+	img, _, err := image.Decode(bunnyAnimationsFile)
 
 	if err != nil {
 		panic(err)
 	}
 
-	p.animSpriteSheet, _ = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	animSpriteSheet, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+
+	if err != nil {
+		panic(err)
+	}
+
+	p.idleAnimation = &Animation{
+		id:           0,
+		defaultSpeed: 15,
+		spritesheet:  animSpriteSheet,
+		frameWidth:   32,
+		frameHeight:  32,
+		frame0X:      0,
+		frame0Y:      0,
+		frameNum:     6,
+		speed:        17,
+		count:        -1,
+	}
+
+	p.hopRightAnimation = &Animation{
+		id:           1,
+		defaultSpeed: 8,
+		spritesheet:  animSpriteSheet,
+		frameWidth:   32,
+		frameHeight:  32,
+		frame0X:      0,
+		frame0Y:      32,
+		frameNum:     6,
+		speed:        8,
+		count:        -1,
+	}
+
+	p.animation = p.idleAnimation
 }
 
 func (p *Player) Update(screen *ebiten.Image) error {
-	count++
-
-	op := &ebiten.DrawImageOptions{}
-	//move sprite backwards and up by half of its width and height
-	op.GeoM.Translate(-float64(p.frameWidth)/2, -float64(p.frameHeight)/2)
-	//move sprite's origin to half of screen in width and height
-	op.GeoM.Translate(screenWidth/2, screenHeight/2)
-	//speed of changing from one animation frame to another
-	i := (count / int(p.animationSpeed)) % p.frameNum
-	sx, sy := p.frameOX+i*p.frameWidth, p.frameOY
-	r := image.Rect(sx, sy, sx+p.frameWidth, sy+p.frameHeight)
-	op.SourceRect = &r
-	err := screen.DrawImage(p.animSpriteSheet, op)
-
-	if err != nil {
-		return err
-	}
 
 	if len(p.game.gamepads) > 0 {
 		joystick1 := p.game.gamepads[0].axes[0]
 		if joystick1 >= 0.30 {
-			p.frameOY = 32
+			//force previous/existing animation loop to reset to 0
+			if p.animation.id != p.hopRightAnimation.id {
+				p.animation.count = -1
+				p.hopRightAnimation.speed = p.hopRightAnimation.defaultSpeed
+				p.animation = p.hopRightAnimation
+			}
 			if joystick1 >= 0.80 {
-				if p.animationSpeed > 5 {
-					p.animationSpeed -= 0.01
+				if p.animation.speed > 5 {
+					p.animation.speed--
 				}
 			} else {
-				if p.animationSpeed < 8 {
-					p.animationSpeed += 0.01
+				if p.animation.speed < 8 {
+					p.animation.speed++
 				}
 			}
 		} else {
-			p.frameOY = 0
-			p.animationSpeed = 8
+			if p.animation.id != p.idleAnimation.id {
+				p.animation.count = -1
+				p.idleAnimation.speed = p.idleAnimation.defaultSpeed
+				p.animation = p.idleAnimation
+			}
 		}
 	}
+
+	p.animation.Update(screen)
 
 	return nil
 }
 
 type Animation struct {
-	speed int
+	id           uint
+	defaultSpeed int
+	spritesheet  *ebiten.Image
+	frameWidth   int
+	frameHeight  int
+	frame0X      int
+	frame0Y      int
+	frameNum     int
+	speed        int
+	count        int
+}
+
+func (a *Animation) Update(screen *ebiten.Image) error {
+
+	if a.count < 0 {
+		a.count = 0
+	}
+
+	a.count++
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(-float64(a.frameWidth)/2, -float64(a.frameHeight)/2)
+	op.GeoM.Translate(screenWidth/2, screenHeight/2)
+	i := (a.count / a.speed) % a.frameNum
+	sx, sy := a.frame0X+i*a.frameWidth, a.frame0Y
+	r := image.Rect(sx, sy, sx+a.frameWidth, sy+a.frameHeight)
+	op.SourceRect = &r
+	err := screen.DrawImage(a.spritesheet, op)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
