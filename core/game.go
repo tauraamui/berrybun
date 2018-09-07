@@ -151,14 +151,14 @@ func (p *Player) Init() {
 		defaultSpeed:       15,
 		spritesheet:        animSpriteSheet,
 		repeatLoopStart:    0,
-		repeatLoopEnd:      2,
-		maxRepeatLoopCount: 40,
+		repeatLoopEnd:      1,
+		maxRepeatLoopCount: 320,
 		frameWidth:         32,
 		frameHeight:        32,
 		frame0X:            0,
 		frame0Y:            0,
 		frameNum:           6,
-		speed:              6,
+		speed:              2,
 		count:              -1,
 	}
 
@@ -247,7 +247,7 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 		a.countForLoopStart = a.count
 	}
 
-	if i > a.repeatLoopStart && i == a.repeatLoopEnd {
+	if i == a.repeatLoopEnd {
 		if a.repeatLoopCount < a.maxRepeatLoopCount {
 			a.count = a.countForLoopStart
 			a.repeatLoopCount++
@@ -275,4 +275,5 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 func (a *Animation) Reset() {
 	a.count = -1
 	a.speed = a.defaultSpeed
+	a.repeatLoopCount = 0
 }
