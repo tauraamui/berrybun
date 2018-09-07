@@ -148,7 +148,6 @@ func (p *Player) Init() {
 
 	p.idleAnimation = &Animation{
 		id:                 0,
-		defaultSpeed:       15,
 		spritesheet:        animSpriteSheet,
 		repeatLoopStart:    0,
 		repeatLoopEnd:      1,
@@ -158,19 +157,20 @@ func (p *Player) Init() {
 		frame0X:            0,
 		frame0Y:            0,
 		frameNum:           6,
-		speed:              2,
+		defaultSpeed:       4,
+		speed:              4,
 		count:              -1,
 	}
 
 	p.hopRightAnimation = &Animation{
 		id:           1,
-		defaultSpeed: 8,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
 		frameHeight:  32,
 		frame0X:      0,
 		frame0Y:      32,
 		frameNum:     6,
+		defaultSpeed: 8,
 		speed:        8,
 		count:        -1,
 	}
