@@ -177,19 +177,20 @@ func (p *Player) Update(screen *ebiten.Image) error {
 
 	if len(p.game.gamepads) > 0 {
 		joystick1 := p.game.gamepads[0].axes[0]
-		if joystick1 >= 0.5 {
+		if joystick1 >= 0.30 {
 			p.frameOY = 32
-			if joystick1 >= 0.75 {
+			if joystick1 >= 0.80 {
 				if p.animationSpeed > 5 {
-					p.animationSpeed -= 0.1
+					p.animationSpeed -= 0.01
 				}
 			} else {
 				if p.animationSpeed < 8 {
-					p.animationSpeed += 0.1
+					p.animationSpeed += 0.01
 				}
 			}
 		} else {
 			p.frameOY = 0
+			p.animationSpeed = 8
 		}
 	}
 
