@@ -147,16 +147,19 @@ func (p *Player) Init() {
 	}
 
 	p.idleAnimation = &Animation{
-		id:           0,
-		defaultSpeed: 15,
-		spritesheet:  animSpriteSheet,
-		frameWidth:   32,
-		frameHeight:  32,
-		frame0X:      0,
-		frame0Y:      0,
-		frameNum:     6,
-		speed:        17,
-		count:        -1,
+		id:                 0,
+		defaultSpeed:       15,
+		spritesheet:        animSpriteSheet,
+		repeatLoopStart:    0,
+		repeatLoopEnd:      2,
+		maxRepeatLoopCount: 40,
+		frameWidth:         32,
+		frameHeight:        32,
+		frame0X:            0,
+		frame0Y:            0,
+		frameNum:           6,
+		speed:              6,
+		count:              -1,
 	}
 
 	p.hopRightAnimation = &Animation{
@@ -182,8 +185,8 @@ func (p *Player) Update(screen *ebiten.Image) error {
 		if joystick1 >= 0.30 {
 			//force previous/existing animation loop to reset to 0
 			if p.animation.id != p.hopRightAnimation.id {
-				p.animation.count = -1
-				p.hopRightAnimation.speed = p.hopRightAnimation.defaultSpeed
+				p.animation.Reset()
+				p.hopRightAnimation.Reset()
 				p.animation = p.hopRightAnimation
 			}
 			if joystick1 >= 0.80 {
@@ -197,8 +200,8 @@ func (p *Player) Update(screen *ebiten.Image) error {
 			}
 		} else {
 			if p.animation.id != p.idleAnimation.id {
-				p.animation.count = -1
-				p.idleAnimation.speed = p.idleAnimation.defaultSpeed
+				p.animation.Reset()
+				p.idleAnimation.Reset()
 				p.animation = p.idleAnimation
 			}
 		}
@@ -210,16 +213,21 @@ func (p *Player) Update(screen *ebiten.Image) error {
 }
 
 type Animation struct {
-	id           uint
-	defaultSpeed int
-	spritesheet  *ebiten.Image
-	frameWidth   int
-	frameHeight  int
-	frame0X      int
-	frame0Y      int
-	frameNum     int
-	speed        int
-	count        int
+	id                 uint
+	defaultSpeed       int
+	spritesheet        *ebiten.Image
+	repeatLoopStart    int
+	repeatLoopEnd      int
+	maxRepeatLoopCount int
+	repeatLoopCount    int
+	frameWidth         int
+	frameHeight        int
+	frame0X            int
+	frame0Y            int
+	frameNum           int
+	speed              int
+	count              int
+	countForLoopStart  int
 }
 
 func (a *Animation) Update(screen *ebiten.Image) error {
@@ -234,6 +242,24 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 	op.GeoM.Translate(-float64(a.frameWidth)/2, -float64(a.frameHeight)/2)
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
 	i := (a.count / a.speed) % a.frameNum
+
+	if i == a.repeatLoopStart {
+		a.countForLoopStart = a.count
+	}
+
+	if i > a.repeatLoopStart && i == a.repeatLoopEnd {
+		if a.repeatLoopCount < a.maxRepeatLoopCount {
+			a.count = a.countForLoopStart
+			a.repeatLoopCount++
+		}
+	}
+
+	if a.repeatLoopCount >= a.maxRepeatLoopCount {
+		if i == a.frameNum-1 {
+			a.repeatLoopCount = 0
+		}
+	}
+
 	sx, sy := a.frame0X+i*a.frameWidth, a.frame0Y
 	r := image.Rect(sx, sy, sx+a.frameWidth, sy+a.frameHeight)
 	op.SourceRect = &r
@@ -244,4 +270,9 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 	}
 
 	return nil
+}
+
+func (a *Animation) Reset() {
+	a.count = -1
+	a.speed = a.defaultSpeed
 }
