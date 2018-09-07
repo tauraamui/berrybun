@@ -196,3 +196,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 
 	return nil
 }
+
+type Animation struct {
+	speed int
+}
