@@ -196,38 +196,37 @@ func (p *Player) Update(screen *ebiten.Image) error {
 
 	if len(p.game.gamepads) > 0 {
 		joystick1 := p.game.gamepads[0].axes[0]
+
+		playerMoving := false
+
 		if joystick1 >= 0.30 {
+			playerMoving = true
 			//force previous/existing animation loop to reset to 0
 			if p.animation.id != p.hopRightAnimation.id {
 				p.animation.Reset()
 				p.hopRightAnimation.Reset()
 				p.animation = p.hopRightAnimation
 			}
-			if joystick1 >= 0.80 {
-				if p.animation.speed > 5 {
-					p.animation.speed--
-				}
-			} else {
-				if p.animation.speed < 8 {
-					p.animation.speed++
-				}
-			}
 		} else if joystick1 <= -0.30 {
+			playerMoving = true
 			if p.animation.id != p.hopLeftAnimation.id {
 				p.animation.Reset()
 				p.hopLeftAnimation.Reset()
 				p.animation = p.hopLeftAnimation
 			}
-			if joystick1 <= -0.80 {
-				if p.animation.speed > 5 {
-					p.animation.speed--
-				}
-			} else {
-				if p.animation.speed < 8 {
-					p.animation.speed++
-				}
+		}
+
+		if joystick1 >= 0.80 || joystick1 <= -0.80 {
+			if p.animation.speed > 5 {
+				p.animation.speed--
 			}
 		} else {
+			if p.animation.speed < 8 {
+				p.animation.speed++
+			}
+		}
+
+		if !playerMoving {
 			if p.animation.id != p.idleAnimation.id {
 				p.animation.Reset()
 				p.idleAnimation.Reset()
