@@ -135,7 +135,7 @@ type Player struct {
 	frameWidth              int
 	frameHeight             int
 	frameNum                int
-	animationSpeed          int
+	animationSpeed          float32
 }
 
 func (p *Player) Init() {
@@ -165,7 +165,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 	//move sprite's origin to half of screen in width and height
 	op.GeoM.Translate(screenWidth/2, screenHeight/2)
 	//speed of changing from one animation frame to another
-	i := (count / p.animationSpeed) % p.frameNum
+	i := (count / int(p.animationSpeed)) % p.frameNum
 	sx, sy := p.frameOX+i*p.frameWidth, p.frameOY
 	r := image.Rect(sx, sy, sx+p.frameWidth, sy+p.frameHeight)
 	op.SourceRect = &r
@@ -176,9 +176,18 @@ func (p *Player) Update(screen *ebiten.Image) error {
 	}
 
 	if len(p.game.gamepads) > 0 {
-		firstGamepad := p.game.gamepads[0]
-		if firstGamepad.axes[0] >= 0.5 {
+		joystick1 := p.game.gamepads[0].axes[0]
+		if joystick1 >= 0.5 {
 			p.frameOY = 32
+			if joystick1 >= 0.75 {
+				if p.animationSpeed > 5 {
+					p.animationSpeed -= 0.1
+				}
+			} else {
+				if p.animationSpeed < 8 {
+					p.animationSpeed += 0.1
+				}
+			}
 		} else {
 			p.frameOY = 0
 		}
