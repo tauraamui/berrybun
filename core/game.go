@@ -152,7 +152,7 @@ func (p *Player) Init() {
 		spritesheet:        animSpriteSheet,
 		repeatLoopStart:    0,
 		repeatLoopEnd:      1,
-		maxRepeatLoopCount: 320,
+		maxRepeatLoopCount: 260,
 		frameWidth:         32,
 		frameHeight:        32,
 		frame0X:            0,
