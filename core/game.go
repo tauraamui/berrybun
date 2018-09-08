@@ -118,11 +118,12 @@ func (g *Game) Update(screen *ebiten.Image) error {
 }
 
 type Player struct {
-	game              *Game
-	animation         *Animation
-	idleAnimation     *Animation
-	hopRightAnimation *Animation
-	hopLeftAnimation  *Animation
+	game                *Game
+	animation           *Animation
+	idleAnimation       *Animation
+	hopRightAnimation   *Animation
+	hopLeftAnimation    *Animation
+	hopForwardAnimation *Animation
 }
 
 func (p *Player) Init() {
@@ -189,17 +190,47 @@ func (p *Player) Init() {
 		count:        -1,
 	}
 
+	p.hopForwardAnimation = &Animation{
+		id:           1,
+		spritesheet:  animSpriteSheet,
+		frameWidth:   32,
+		frameHeight:  32,
+		frame0X:      0,
+		frame0Y:      96,
+		frameNum:     6,
+		defaultSpeed: 8,
+		speed:        8,
+		count:        -1,
+	}
+
 	p.animation = p.idleAnimation
 }
 
 func (p *Player) Update(screen *ebiten.Image) error {
 
 	if len(p.game.gamepads) > 0 {
-		joystick1 := p.game.gamepads[0].axes[0]
+		j1LeftRightAxes := p.game.gamepads[0].axes[0]
+		j1UpDownAxes := p.game.gamepads[0].axes[1]
 
 		playerMoving := false
 
-		if joystick1 >= 0.30 {
+		if j1UpDownAxes >= 0.30 {
+			playerMoving = true
+			if p.animation.id != p.hopForwardAnimation.id {
+				p.animation.Reset()
+				p.hopForwardAnimation.Reset()
+				p.animation = p.hopForwardAnimation
+			}
+		} else if j1UpDownAxes <= -0.30 {
+			playerMoving = true
+			if p.animation.id != p.hopForwardAnimation.id {
+				p.animation.Reset()
+				p.hopForwardAnimation.Reset()
+				p.animation = p.hopForwardAnimation
+			}
+		}
+
+		if j1LeftRightAxes >= 0.30 {
 			playerMoving = true
 			//force previous/existing animation loop to reset to 0
 			if p.animation.id != p.hopRightAnimation.id {
@@ -207,7 +238,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 				p.hopRightAnimation.Reset()
 				p.animation = p.hopRightAnimation
 			}
-		} else if joystick1 <= -0.30 {
+		} else if j1LeftRightAxes <= -0.30 {
 			playerMoving = true
 			if p.animation.id != p.hopLeftAnimation.id {
 				p.animation.Reset()
@@ -216,7 +247,11 @@ func (p *Player) Update(screen *ebiten.Image) error {
 			}
 		}
 
-		if joystick1 >= 0.80 || joystick1 <= -0.80 {
+		if j1LeftRightAxes >= 0.80 || j1LeftRightAxes <= -0.80 {
+			if p.animation.speed > 5 {
+				p.animation.speed--
+			}
+		} else if j1UpDownAxes >= 0.80 || j1UpDownAxes <= -0.80 {
 			if p.animation.speed > 5 {
 				p.animation.speed--
 			}
