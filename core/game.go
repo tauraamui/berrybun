@@ -165,7 +165,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopRightAnimation = &Animation{
-		id:           1,
+		id:           2,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
 		frameHeight:  32,
@@ -178,7 +178,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopLeftAnimation = &Animation{
-		id:           1,
+		id:           3,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
 		frameHeight:  32,
@@ -191,7 +191,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopForwardAnimation = &Animation{
-		id:           1,
+		id:           4,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
 		frameHeight:  32,
@@ -247,6 +247,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 			}
 		}
 
+		//vary speed relative to how much joystick pushed in either direction
 		if j1LeftRightAxes >= 0.80 || j1LeftRightAxes <= -0.80 {
 			if p.animation.speed > 5 {
 				p.animation.speed--
@@ -306,7 +307,7 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-float64(a.frameWidth)/2, -float64(a.frameHeight)/2)
 	sw, sh := screen.Size()
-	swf := float64(sw) - (float64(sw) * float64(0.9988))
+	swf := float64(sw) - (float64(sw) * float64(0.9991))
 	shf := float64(sh) - (float64(sh) * float64(0.9988))
 	op.GeoM.Scale(scale+swf, scale+shf)
 	op.GeoM.Translate(float64(sw)/2, float64(sh)/2)
