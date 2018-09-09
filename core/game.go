@@ -124,6 +124,7 @@ type Player struct {
 	hopRightAnimation   *Animation
 	hopLeftAnimation    *Animation
 	hopForwardAnimation *Animation
+	hopDownAnimation    *Animation
 }
 
 func (p *Player) Init() {
@@ -203,6 +204,19 @@ func (p *Player) Init() {
 		count:        -1,
 	}
 
+	p.hopDownAnimation = &Animation{
+		id:           5,
+		spritesheet:  animSpriteSheet,
+		frameWidth:   32,
+		frameHeight:  32,
+		frame0X:      0,
+		frame0Y:      128,
+		frameNum:     6,
+		defaultSpeed: 8,
+		speed:        8,
+		count:        -1,
+	}
+
 	p.animation = p.idleAnimation
 }
 
@@ -216,10 +230,10 @@ func (p *Player) Update(screen *ebiten.Image) error {
 
 		if j1UpDownAxes >= 0.30 {
 			playerMoving = true
-			if p.animation.id != p.hopForwardAnimation.id {
+			if p.animation.id != p.hopDownAnimation.id {
 				p.animation.Reset()
-				p.hopForwardAnimation.Reset()
-				p.animation = p.hopForwardAnimation
+				p.hopDownAnimation.Reset()
+				p.animation = p.hopDownAnimation
 			}
 		} else if j1UpDownAxes <= -0.30 {
 			playerMoving = true
