@@ -16,7 +16,7 @@ type World struct {
 func (w *World) Init() {
 	w.wMap = &Map{
 		world:   w,
-		bglayer: []uint32{23, 23},
+		bglayer: []uint32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	}
 	w.player.Init()
 }
@@ -148,17 +148,17 @@ func (p *Player) Update(screen *ebiten.Image) error {
 
 		if j1UpDownAxes >= 0.30 {
 			playerMoving = true
-			if p.animation.id != p.hopDownAnimation.id {
-				p.animation.Reset()
-				p.hopDownAnimation.Reset()
-				p.animation = p.hopDownAnimation
-			}
-		} else if j1UpDownAxes <= -0.30 {
-			playerMoving = true
 			if p.animation.id != p.hopForwardAnimation.id {
 				p.animation.Reset()
 				p.hopForwardAnimation.Reset()
 				p.animation = p.hopForwardAnimation
+			}
+		} else if j1UpDownAxes <= -0.30 {
+			playerMoving = true
+			if p.animation.id != p.hopDownAnimation.id {
+				p.animation.Reset()
+				p.hopDownAnimation.Reset()
+				p.animation = p.hopDownAnimation
 			}
 		}
 
