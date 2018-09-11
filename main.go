@@ -4,11 +4,11 @@ import (
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten"
-	"github.com/tauraamui/berrybun/core"
+	"github.com/tauraamui/berrybun/game"
 )
 
 func main() {
-	var game = core.Game{}
+	var game = game.Game{}
 	game.Init()
 
 	//ebiten.SetFullscreen(true)

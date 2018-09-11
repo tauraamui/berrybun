@@ -1,4 +1,4 @@
-package core
+package game
 
 import (
 	"image"
@@ -29,15 +29,18 @@ func (gpi *GamePadInput) update() {
 
 type Game struct {
 	mu       sync.Mutex
-	player   *Player
+	world    *World
 	gamepads []GamePadInput
 }
 
 func (g *Game) Init() {
-	g.player = &Player{
+	g.world = &World{
 		game: g,
+		player: &Player{
+			game: g,
+		},
 	}
-	g.player.Init()
+	g.world.Init()
 }
 
 //AddGamepad adds a gamepad struct to collection if doesn't already contain gamepad of same id
@@ -108,13 +111,11 @@ func (g *Game) updateGamepads() {
 //Update updates everything within game state
 func (g *Game) Update(screen *ebiten.Image) error {
 	g.updateGamepads()
+	return g.world.Update(screen)
 
-	if ebiten.IsDrawingSkipped() {
-		return nil
-	}
-
-	return g.player.Update(screen)
-
+	// if ebiten.IsDrawingSkipped() {
+	// 	return nil
+	// }
 }
 
 type Player struct {
@@ -355,7 +356,11 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 	sx, sy := a.frame0X+i*a.frameWidth, a.frame0Y
 	r := image.Rect(sx, sy, sx+a.frameWidth, sy+a.frameHeight)
 	op.SourceRect = &r
-	err := screen.DrawImage(a.spritesheet, op)
+
+	var err error
+	if !ebiten.IsDrawingSkipped() {
+		err = screen.DrawImage(a.spritesheet, op)
+	}
 
 	if err != nil {
 		return err
