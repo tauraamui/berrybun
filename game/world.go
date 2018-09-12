@@ -18,20 +18,68 @@ func (w *World) Init() {
 		world:   w,
 		bglayer: []uint32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	}
+	w.wMap.Init()
 	w.player.Init()
 }
 
 func (w *World) Update(screen *ebiten.Image) error {
+	w.wMap.Update(screen)
 	w.player.Update(screen)
 	return nil
 }
 
 type Map struct {
-	world   *World
-	bglayer []uint32
+	world         *World
+	bgSpriteSheet *ebiten.Image
+	bglayer       []uint32
+}
+
+func (m *Map) Init() error {
+	mapTileSizeShape, err := os.Open("./res/map.png")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer mapTileSizeShape.Close()
+
+	img, _, err := image.Decode(mapTileSizeShape)
+
+	if err != nil {
+		panic(err)
+	}
+
+	m.bgSpriteSheet, err = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return nil
 }
 
 func (m *Map) Update(screen *ebiten.Image) error {
+
+	if ebiten.IsDrawingSkipped() {
+		return nil
+	}
+
+	sw, sh := screen.Size()
+	xTiles, yTiles := sw/16, sh/16
+
+	for x := 0; x < xTiles; x++ {
+		for y := 0; y < yTiles; y++ {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64((x%xTiles)*16), float64(y*16))
+			r := image.Rect(0, 0, 16, 16)
+			op.SourceRect = &r
+
+			if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

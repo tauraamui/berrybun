@@ -21,7 +21,7 @@ func main() {
 		h = 450
 	}
 
-	ebiten.SetFullscreen(true)
+	// ebiten.SetFullscreen(true)
 
 	s := ebiten.DeviceScaleFactor()
 
