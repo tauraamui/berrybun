@@ -2,6 +2,7 @@ package game
 
 import (
 	"image"
+	"math/rand"
 	"os"
 
 	"github.com/hajimehoshi/ebiten"
@@ -54,13 +55,16 @@ func (m *Map) Init() error {
 		panic(err)
 	}
 
-	m.bglayer = make([][]int, 500)
+	m.bglayer = make([][]int, 40)
 
 	for y := 0; y < len(m.bglayer); y++ {
-		newRow := make([]int, 500)
-		if y%5 == 0 {
+		newRow := make([]int, 50)
+		if y%6 == 0 {
 			for i := 0; i < len(newRow); i++ {
-				newRow[i] = 1
+				if i > 4 && rand.Intn(8) == 2 {
+					grass := rand.Intn(2)
+					newRow[i] = grass
+				}
 			}
 		}
 		m.bglayer[y] = newRow

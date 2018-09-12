@@ -1,11 +1,13 @@
 package game
 
 import (
+	"fmt"
 	"image"
 	"log"
 	"sync"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 )
 
@@ -114,7 +116,15 @@ func (g *Game) updateGamepads() {
 //Update updates everything within game state
 func (g *Game) Update(screen *ebiten.Image) error {
 	g.updateGamepads()
-	return g.world.Update(screen)
+	if err := g.world.Update(screen); err != nil {
+		return err
+	}
+
+	if err := ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS: %0.2f", ebiten.CurrentFPS())); err != nil {
+		return nil
+	}
+
+	return nil
 
 	// if ebiten.IsDrawingSkipped() {
 	// 	return nil
