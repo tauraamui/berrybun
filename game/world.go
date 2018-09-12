@@ -71,16 +71,26 @@ func (m *Map) Init() error {
 
 func (m *Map) Update(screen *ebiten.Image) error {
 
+	const (
+		spriteSize = 16
+	)
+
 	if ebiten.IsDrawingSkipped() {
 		return nil
 	}
+
+	scale := ebiten.DeviceScaleFactor()
 
 	for y := 0; y < len(m.bglayer); y++ {
 		xTiles := len(m.bglayer[y])
 		for x := 0; x < xTiles; x++ {
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64((x%xTiles)*16), float64(y*16))
-			r := image.Rect(m.bglayer[y][x]*16, m.bglayer[y][x]*16, (m.bglayer[y][x]+1)*16, (m.bglayer[y][x]+1)*16)
+			op.GeoM.Translate(float64((x%xTiles)*spriteSize), float64(y*spriteSize))
+			sw, sh := screen.Size()
+			swf := float64(sw) - (float64(sw) * float64(0.9991))
+			shf := float64(sh) - (float64(sh) * float64(0.9988))
+			op.GeoM.Scale(scale+swf, scale+shf)
+			r := image.Rect(m.bglayer[y][x]*spriteSize, 0, (m.bglayer[y][x]+1)*spriteSize, (m.bglayer[y][x]+1)*spriteSize)
 			op.SourceRect = &r
 
 			if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
