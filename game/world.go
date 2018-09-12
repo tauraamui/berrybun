@@ -54,10 +54,15 @@ func (m *Map) Init() error {
 		panic(err)
 	}
 
-	m.bglayer = make([][]int, 200)
+	m.bglayer = make([][]int, 500)
 
 	for y := 0; y < len(m.bglayer); y++ {
-		newRow := make([]int, 200)
+		newRow := make([]int, 500)
+		if y%5 == 0 {
+			for i := 0; i < len(newRow); i++ {
+				newRow[i] = 1
+			}
+		}
 		m.bglayer[y] = newRow
 	}
 
@@ -75,7 +80,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 		for x := 0; x < xTiles; x++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64((x%xTiles)*16), float64(y*16))
-			r := image.Rect(m.bglayer[y][x], m.bglayer[y][x], 16, 16)
+			r := image.Rect(0, 0, 16, 16)
 			op.SourceRect = &r
 
 			if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
