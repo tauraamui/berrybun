@@ -65,7 +65,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 	}
 
 	sw, sh := screen.Size()
-	xTiles, yTiles := sw/16, sh/16
+	xTiles, yTiles := sw/16, (sh/16)+1
 
 	for x := 0; x < xTiles; x++ {
 		for y := 0; y < yTiles; y++ {

@@ -25,8 +25,8 @@ func main() {
 
 	s := ebiten.DeviceScaleFactor()
 
-	if err := ebiten.Run(game.Update, int(float64(w)*s), int(float64(h)*s), 1/s, "Berrybun Game"); err != nil {
-		// if err := ebiten.Run(game.Update, 800, 600, 1/s, "Berrybun Game"); err != nil {
+	// if err := ebiten.Run(game.Update, int(float64(w)*s), int(float64(h)*s), 1/s, "Berrybun Game"); err != nil {
+	if err := ebiten.Run(game.Update, 800, 600, 1/s, "Berrybun Game"); err != nil {
 		panic(err)
 	}
 }
