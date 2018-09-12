@@ -15,8 +15,7 @@ type World struct {
 
 func (w *World) Init() {
 	w.wMap = &Map{
-		world:   w,
-		bglayer: []uint32{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		world: w,
 	}
 	w.wMap.Init()
 	w.player.Init()
@@ -31,7 +30,7 @@ func (w *World) Update(screen *ebiten.Image) error {
 type Map struct {
 	world         *World
 	bgSpriteSheet *ebiten.Image
-	bglayer       []uint32
+	bglayer       [][]int
 }
 
 func (m *Map) Init() error {
@@ -55,6 +54,13 @@ func (m *Map) Init() error {
 		panic(err)
 	}
 
+	m.bglayer = make([][]int, 200)
+
+	for y := 0; y < len(m.bglayer); y++ {
+		newRow := make([]int, 200)
+		m.bglayer[y] = newRow
+	}
+
 	return nil
 }
 
@@ -64,14 +70,12 @@ func (m *Map) Update(screen *ebiten.Image) error {
 		return nil
 	}
 
-	sw, sh := screen.Size()
-	xTiles, yTiles := sw/16, (sh/16)+1
-
-	for x := 0; x < xTiles; x++ {
-		for y := 0; y < yTiles; y++ {
+	for y := 0; y < len(m.bglayer); y++ {
+		xTiles := len(m.bglayer[y])
+		for x := 0; x < xTiles; x++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64((x%xTiles)*16), float64(y*16))
-			r := image.Rect(0, 0, 16, 16)
+			r := image.Rect(m.bglayer[y][x], m.bglayer[y][x], 16, 16)
 			op.SourceRect = &r
 
 			if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
