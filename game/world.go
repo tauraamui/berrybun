@@ -80,7 +80,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 		for x := 0; x < xTiles; x++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64((x%xTiles)*16), float64(y*16))
-			r := image.Rect(0, 0, 16, 16)
+			r := image.Rect(m.bglayer[y][x]*16, m.bglayer[y][x]*16, (m.bglayer[y][x]+1)*16, (m.bglayer[y][x]+1)*16)
 			op.SourceRect = &r
 
 			if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
