@@ -60,10 +60,14 @@ func (m *Map) Init() error {
 	for y := 0; y < len(m.bglayer); y++ {
 		newRow := make([]int, 50)
 		if y%6 == 0 {
+			var grassOnRow = 0
 			for i := 0; i < len(newRow); i++ {
-				if i > 4 && rand.Intn(8) == 2 {
+				if i > 2 && rand.Intn(3) == 2 && grassOnRow < 5 {
 					grass := rand.Intn(2)
 					newRow[i] = grass
+					if grass == 1 {
+						grassOnRow++
+					}
 				}
 			}
 		}
@@ -214,98 +218,116 @@ func (p *Player) Init() {
 
 func (p *Player) Update(screen *ebiten.Image) error {
 
-	if len(p.game.gamepads) > 0 {
-		j1LeftRightAxes := p.game.gamepads[0].axes[0]
-		j1UpDownAxes := p.game.gamepads[0].axes[1]
-
-		playerMoving := false
-
-		if j1UpDownAxes >= 0.30 {
-
-			if p.speed < 3 {
-				p.speed++
-			}
-			playerMoving = true
-			if p.animation.id != p.hopForwardAnimation.id {
-				p.animation.Reset()
-				p.hopForwardAnimation.Reset()
-				p.animation = p.hopForwardAnimation
-			}
-			p.game.cameraY += p.speed
-		} else if j1UpDownAxes <= -0.30 {
-			if p.speed < 3 {
-				p.speed++
-			}
-			playerMoving = true
-			if p.animation.id != p.hopDownAnimation.id {
-				p.animation.Reset()
-				p.hopDownAnimation.Reset()
-				p.animation = p.hopDownAnimation
-			}
-			p.game.cameraY -= p.speed
-		}
-
-		if j1LeftRightAxes >= 0.30 {
-
-			if p.speed < 3 {
-				p.speed++
-			}
-			playerMoving = true
-			//force previous/existing animation loop to reset to 0
-			if p.animation.id != p.hopRightAnimation.id {
-				p.animation.Reset()
-				p.hopRightAnimation.Reset()
-				p.animation = p.hopRightAnimation
-			}
-			p.game.cameraX += p.speed
-		} else if j1LeftRightAxes <= -0.30 {
-			if p.speed < 3 {
-				p.speed++
-			}
-			playerMoving = true
-			if p.animation.id != p.hopLeftAnimation.id {
-				p.animation.Reset()
-				p.hopLeftAnimation.Reset()
-				p.animation = p.hopLeftAnimation
-			}
-			p.game.cameraX -= p.speed
-		}
-
-		//vary speed relative to how much joystick pushed in either direction
-		if j1LeftRightAxes >= 0.80 || j1LeftRightAxes <= -0.80 {
-			if p.animation.speed > 5 {
-				p.animation.speed--
-			}
-			if p.speed < 6 {
-				p.speed++
-			}
-		} else if j1UpDownAxes >= 0.80 || j1UpDownAxes <= -0.80 {
-			if p.animation.speed > 5 {
-				p.animation.speed--
-			}
-			if p.speed < 6 {
-				p.speed++
-			}
-		} else {
-			if p.animation.speed < 8 {
-				p.animation.speed++
-			}
-
-			if p.speed < 6 {
-				p.speed++
-			}
-		}
-
-		if !playerMoving {
-			if p.animation.id != p.idleAnimation.id {
-				p.animation.Reset()
-				p.idleAnimation.Reset()
-				p.animation = p.idleAnimation
-			}
-		}
-	}
-
+	p.Move()
 	p.animation.Update(screen)
 
 	return nil
+}
+
+func (p *Player) Move() {
+
+	if p.MovingUp() {
+		p.game.cameraY++
+	}
+
+	if p.MovingDown() {
+		p.game.cameraY--
+	}
+
+	if p.MovingRight() {
+		p.game.cameraX++
+	}
+
+	if p.MovingLeft() {
+		p.game.cameraX--
+	}
+
+	p.UpdateAnimation()
+}
+
+func (p *Player) UpdateAnimation() {
+	playerMoving := false
+	if p.MovingUp() && !p.MovingRight() && !p.MovingLeft() {
+		playerMoving = true
+		if p.animation.id != p.hopForwardAnimation.id {
+			p.animation.Reset()
+			p.hopForwardAnimation.Reset()
+			p.animation = p.hopForwardAnimation
+		}
+	}
+
+	if p.MovingDown() && !p.MovingRight() && !p.MovingLeft() {
+		playerMoving = true
+		if p.animation.id != p.hopDownAnimation.id {
+			p.animation.Reset()
+			p.hopDownAnimation.Reset()
+			p.animation = p.hopDownAnimation
+		}
+	}
+
+	if p.MovingRight() && !p.MovingUp() && !p.MovingDown() {
+		playerMoving = true
+		if p.animation.id != p.hopRightAnimation.id {
+			p.animation.Reset()
+			p.hopRightAnimation.Reset()
+			p.animation = p.hopRightAnimation
+		}
+	}
+
+	if p.MovingLeft() && !p.MovingUp() && !p.MovingDown() {
+		playerMoving = true
+		if p.animation.id != p.hopLeftAnimation.id {
+			p.animation.Reset()
+			p.hopLeftAnimation.Reset()
+			p.animation = p.hopLeftAnimation
+		}
+	}
+
+	if p.MovingLeft() && p.MovingUp() {
+	}
+
+	if p.MovingLeft() && p.MovingDown() {
+	}
+
+	if p.MovingRight() && p.MovingUp() {
+	}
+
+	if p.MovingRight() && p.MovingDown() {
+	}
+
+	if !playerMoving {
+		if p.animation.id != p.idleAnimation.id {
+			p.animation.Reset()
+			p.idleAnimation.Reset()
+			p.animation = p.idleAnimation
+		}
+	}
+}
+
+func (p *Player) MovingRight() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	return p.game.gamepads[0].axes[0] >= 0.30
+}
+
+func (p *Player) MovingLeft() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	return p.game.gamepads[0].axes[0] <= -0.30
+}
+
+func (p *Player) MovingUp() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	return p.game.gamepads[0].axes[1] >= 0.30
+}
+
+func (p *Player) MovingDown() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	return p.game.gamepads[0].axes[1] <= -0.30
 }
