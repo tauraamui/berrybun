@@ -4,6 +4,7 @@ import (
 	"image"
 	"math/rand"
 	"os"
+	"runtime"
 
 	"github.com/hajimehoshi/ebiten"
 )
@@ -342,12 +343,20 @@ func (p *Player) MovingUp() bool {
 	if len(p.game.gamepads) == 0 {
 		return false
 	}
-	return p.game.gamepads[0].axes[1] >= 0.30
+	if runtime.GOOS != "windows" {
+		return p.game.gamepads[0].axes[1] <= -0.30
+	} else {
+		return p.game.gamepads[0].axes[1] >= 0.30
+	}
 }
 
 func (p *Player) MovingDown() bool {
 	if len(p.game.gamepads) == 0 {
 		return false
 	}
-	return p.game.gamepads[0].axes[1] <= -0.30
+	if runtime.GOOS != "windows" {
+		return p.game.gamepads[0].axes[1] >= 0.30
+	} else {
+		return p.game.gamepads[0].axes[1] <= -0.30
+	}
 }
