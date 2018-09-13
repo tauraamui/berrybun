@@ -112,13 +112,14 @@ func (m *Map) Update(screen *ebiten.Image) error {
 }
 
 type Player struct {
-	game                *Game
-	animation           *Animation
-	idleAnimation       *Animation
-	hopRightAnimation   *Animation
-	hopLeftAnimation    *Animation
-	hopForwardAnimation *Animation
-	hopDownAnimation    *Animation
+	game                    *Game
+	animation               *Animation
+	idleAnimation           *Animation
+	hopRightAnimation       *Animation
+	hopLeftAnimation        *Animation
+	hopForwardAnimation     *Animation
+	hopDownAnimation        *Animation
+	hopForwardLeftAnimation *Animation
 
 	speed int
 }
@@ -213,6 +214,19 @@ func (p *Player) Init() {
 		count:        -1,
 	}
 
+	p.hopForwardLeftAnimation = &Animation{
+		id:           6,
+		spritesheet:  animSpriteSheet,
+		frameWidth:   32,
+		frameHeight:  32,
+		frame0X:      0,
+		frame0Y:      64,
+		frameNum:     6,
+		defaultSpeed: 8,
+		speed:        8,
+		count:        -1,
+	}
+
 	p.animation = p.idleAnimation
 }
 
@@ -284,6 +298,12 @@ func (p *Player) UpdateAnimation() {
 	}
 
 	if p.MovingLeft() && p.MovingUp() {
+		playerMoving = true
+		if p.animation.id != p.hopForwardLeftAnimation.id {
+			p.animation.Reset()
+			p.hopLeftAnimation.Reset()
+			p.animation = p.hopLeftAnimation
+		}
 	}
 
 	if p.MovingLeft() && p.MovingDown() {
