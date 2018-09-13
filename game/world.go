@@ -242,19 +242,19 @@ func (p *Player) Update(screen *ebiten.Image) error {
 func (p *Player) Move() {
 
 	if p.MovingUp() {
-		p.game.cameraY++
+		p.game.cameraY += 9 - p.animation.speed
 	}
 
 	if p.MovingDown() {
-		p.game.cameraY--
+		p.game.cameraY -= 9 - p.animation.speed
 	}
 
 	if p.MovingRight() {
-		p.game.cameraX++
+		p.game.cameraX += 9 - p.animation.speed
 	}
 
 	if p.MovingLeft() {
-		p.game.cameraX--
+		p.game.cameraX -= 9 - p.animation.speed
 	}
 
 	p.UpdateAnimation()
@@ -269,6 +269,14 @@ func (p *Player) UpdateAnimation() {
 			p.hopForwardAnimation.Reset()
 			p.animation = p.hopForwardAnimation
 		}
+
+		if p.MovingUpMore() {
+			if p.animation.speed > 6 {
+				p.animation.speed--
+			}
+		} else {
+			p.animation.speed = p.animation.defaultSpeed
+		}
 	}
 
 	if p.MovingDown() && !p.MovingRight() && !p.MovingLeft() {
@@ -277,6 +285,14 @@ func (p *Player) UpdateAnimation() {
 			p.animation.Reset()
 			p.hopDownAnimation.Reset()
 			p.animation = p.hopDownAnimation
+		}
+
+		if p.MovingDownMore() {
+			if p.animation.speed > 6 {
+				p.animation.speed--
+			}
+		} else {
+			p.animation.speed = p.animation.defaultSpeed
 		}
 	}
 
@@ -287,6 +303,14 @@ func (p *Player) UpdateAnimation() {
 			p.hopRightAnimation.Reset()
 			p.animation = p.hopRightAnimation
 		}
+
+		if p.MovingRightMore() {
+			if p.animation.speed > 6 {
+				p.animation.speed--
+			}
+		} else {
+			p.animation.speed = p.animation.defaultSpeed
+		}
 	}
 
 	if p.MovingLeft() && !p.MovingUp() && !p.MovingDown() {
@@ -295,6 +319,14 @@ func (p *Player) UpdateAnimation() {
 			p.animation.Reset()
 			p.hopLeftAnimation.Reset()
 			p.animation = p.hopLeftAnimation
+		}
+
+		if p.MovingLeftMore() {
+			if p.animation.speed > 6 {
+				p.animation.speed--
+			}
+		} else {
+			p.animation.speed = p.animation.defaultSpeed
 		}
 	}
 
@@ -332,11 +364,25 @@ func (p *Player) MovingRight() bool {
 	return p.game.gamepads[0].axes[0] >= 0.30
 }
 
+func (p *Player) MovingRightMore() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	return p.game.gamepads[0].axes[0] >= 0.80
+}
+
 func (p *Player) MovingLeft() bool {
 	if len(p.game.gamepads) == 0 {
 		return false
 	}
 	return p.game.gamepads[0].axes[0] <= -0.30
+}
+
+func (p *Player) MovingLeftMore() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	return p.game.gamepads[0].axes[0] <= -0.80
 }
 
 func (p *Player) MovingUp() bool {
@@ -350,6 +396,17 @@ func (p *Player) MovingUp() bool {
 	}
 }
 
+func (p *Player) MovingUpMore() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	if runtime.GOOS != "windows" {
+		return p.game.gamepads[0].axes[1] <= -0.80
+	} else {
+		return p.game.gamepads[0].axes[1] >= 0.80
+	}
+}
+
 func (p *Player) MovingDown() bool {
 	if len(p.game.gamepads) == 0 {
 		return false
@@ -358,5 +415,16 @@ func (p *Player) MovingDown() bool {
 		return p.game.gamepads[0].axes[1] >= 0.30
 	} else {
 		return p.game.gamepads[0].axes[1] <= -0.30
+	}
+}
+
+func (p *Player) MovingDownMore() bool {
+	if len(p.game.gamepads) == 0 {
+		return false
+	}
+	if runtime.GOOS != "windows" {
+		return p.game.gamepads[0].axes[1] >= 0.80
+	} else {
+		return p.game.gamepads[0].axes[1] <= -0.80
 	}
 }
