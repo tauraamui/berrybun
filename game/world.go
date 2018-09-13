@@ -90,6 +90,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 		for x := 0; x < xTiles; x++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64((x%xTiles)*spriteSize), float64(y*spriteSize))
+			op.GeoM.Translate(float64(m.world.game.cameraX*-1), float64(m.world.game.cameraY))
 			sw, sh := screen.Size()
 			swf := float64(sw) - (float64(sw) * float64(0.9991))
 			shf := float64(sh) - (float64(sh) * float64(0.9988))
@@ -224,6 +225,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 				p.hopForwardAnimation.Reset()
 				p.animation = p.hopForwardAnimation
 			}
+			p.game.cameraY++
 		} else if j1UpDownAxes <= -0.30 {
 			playerMoving = true
 			if p.animation.id != p.hopDownAnimation.id {
@@ -231,6 +233,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 				p.hopDownAnimation.Reset()
 				p.animation = p.hopDownAnimation
 			}
+			p.game.cameraY--
 		}
 
 		if j1LeftRightAxes >= 0.30 {
@@ -241,6 +244,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 				p.hopRightAnimation.Reset()
 				p.animation = p.hopRightAnimation
 			}
+			p.game.cameraX++
 		} else if j1LeftRightAxes <= -0.30 {
 			playerMoving = true
 			if p.animation.id != p.hopLeftAnimation.id {
@@ -248,6 +252,7 @@ func (p *Player) Update(screen *ebiten.Image) error {
 				p.hopLeftAnimation.Reset()
 				p.animation = p.hopLeftAnimation
 			}
+			p.game.cameraX--
 		}
 
 		//vary speed relative to how much joystick pushed in either direction
