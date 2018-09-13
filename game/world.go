@@ -220,7 +220,7 @@ func (p *Player) Init() {
 		frameWidth:   32,
 		frameHeight:  32,
 		frame0X:      0,
-		frame0Y:      64,
+		frame0Y:      160,
 		frameNum:     6,
 		defaultSpeed: 8,
 		speed:        8,
@@ -302,7 +302,7 @@ func (p *Player) UpdateAnimation() {
 		if p.animation.id != p.hopForwardLeftAnimation.id {
 			p.animation.Reset()
 			p.hopLeftAnimation.Reset()
-			p.animation = p.hopLeftAnimation
+			p.animation = p.hopForwardLeftAnimation
 		}
 	}
 
