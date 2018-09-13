@@ -115,6 +115,8 @@ type Player struct {
 	hopLeftAnimation    *Animation
 	hopForwardAnimation *Animation
 	hopDownAnimation    *Animation
+
+	speed int
 }
 
 func (p *Player) Init() {
@@ -219,24 +221,35 @@ func (p *Player) Update(screen *ebiten.Image) error {
 		playerMoving := false
 
 		if j1UpDownAxes >= 0.30 {
+
+			if p.speed < 3 {
+				p.speed++
+			}
 			playerMoving = true
 			if p.animation.id != p.hopForwardAnimation.id {
 				p.animation.Reset()
 				p.hopForwardAnimation.Reset()
 				p.animation = p.hopForwardAnimation
 			}
-			p.game.cameraY++
+			p.game.cameraY += p.speed
 		} else if j1UpDownAxes <= -0.30 {
+			if p.speed < 3 {
+				p.speed++
+			}
 			playerMoving = true
 			if p.animation.id != p.hopDownAnimation.id {
 				p.animation.Reset()
 				p.hopDownAnimation.Reset()
 				p.animation = p.hopDownAnimation
 			}
-			p.game.cameraY--
+			p.game.cameraY -= p.speed
 		}
 
 		if j1LeftRightAxes >= 0.30 {
+
+			if p.speed < 3 {
+				p.speed++
+			}
 			playerMoving = true
 			//force previous/existing animation loop to reset to 0
 			if p.animation.id != p.hopRightAnimation.id {
@@ -244,15 +257,18 @@ func (p *Player) Update(screen *ebiten.Image) error {
 				p.hopRightAnimation.Reset()
 				p.animation = p.hopRightAnimation
 			}
-			p.game.cameraX++
+			p.game.cameraX += p.speed
 		} else if j1LeftRightAxes <= -0.30 {
+			if p.speed < 3 {
+				p.speed++
+			}
 			playerMoving = true
 			if p.animation.id != p.hopLeftAnimation.id {
 				p.animation.Reset()
 				p.hopLeftAnimation.Reset()
 				p.animation = p.hopLeftAnimation
 			}
-			p.game.cameraX--
+			p.game.cameraX -= p.speed
 		}
 
 		//vary speed relative to how much joystick pushed in either direction
@@ -260,13 +276,23 @@ func (p *Player) Update(screen *ebiten.Image) error {
 			if p.animation.speed > 5 {
 				p.animation.speed--
 			}
+			if p.speed < 6 {
+				p.speed++
+			}
 		} else if j1UpDownAxes >= 0.80 || j1UpDownAxes <= -0.80 {
 			if p.animation.speed > 5 {
 				p.animation.speed--
 			}
+			if p.speed < 6 {
+				p.speed++
+			}
 		} else {
 			if p.animation.speed < 8 {
 				p.animation.speed++
+			}
+
+			if p.speed < 6 {
+				p.speed++
 			}
 		}
 
