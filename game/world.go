@@ -358,73 +358,71 @@ func (p *Player) UpdateAnimation() {
 }
 
 func (p *Player) MovingRight() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
+	if len(p.game.gamepads) > 0 {
+		return p.game.gamepads[0].axes[0] >= 0.30
 	}
-	return p.game.gamepads[0].axes[0] >= 0.30
+	return ebiten.IsKeyPressed(ebiten.KeyD)
 }
 
 func (p *Player) MovingRightMore() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
+	if len(p.game.gamepads) > 0 {
+		return p.game.gamepads[0].axes[0] >= 0.80
 	}
-	return p.game.gamepads[0].axes[0] >= 0.80
+	return ebiten.IsKeyPressed(ebiten.KeyD)
 }
 
 func (p *Player) MovingLeft() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
+	if len(p.game.gamepads) > 0 {
+		return p.game.gamepads[0].axes[0] <= -0.30
 	}
-	return p.game.gamepads[0].axes[0] <= -0.30
+	return ebiten.IsKeyPressed(ebiten.KeyA)
 }
 
 func (p *Player) MovingLeftMore() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
+	if len(p.game.gamepads) > 0 {
+		return p.game.gamepads[0].axes[0] <= -0.80
 	}
-	return p.game.gamepads[0].axes[0] <= -0.80
+	return ebiten.IsKeyPressed(ebiten.KeyA)
 }
 
 func (p *Player) MovingUp() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
-	}
-	if runtime.GOOS != "windows" {
-		return p.game.gamepads[0].axes[1] <= -0.30
-	} else {
+	if len(p.game.gamepads) > 0 {
+		if runtime.GOOS != "windows" {
+			return p.game.gamepads[0].axes[1] <= -0.30
+		}
 		return p.game.gamepads[0].axes[1] >= 0.30
 	}
+
+	return ebiten.IsKeyPressed(ebiten.KeyW)
 }
 
 func (p *Player) MovingUpMore() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
-	}
-	if runtime.GOOS != "windows" {
-		return p.game.gamepads[0].axes[1] <= -0.80
-	} else {
+	if len(p.game.gamepads) > 0 {
+		if runtime.GOOS != "windows" {
+			return p.game.gamepads[0].axes[1] <= -0.80
+		}
 		return p.game.gamepads[0].axes[1] >= 0.80
 	}
+
+	return ebiten.IsKeyPressed(ebiten.KeyW)
 }
 
 func (p *Player) MovingDown() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
-	}
-	if runtime.GOOS != "windows" {
-		return p.game.gamepads[0].axes[1] >= 0.30
-	} else {
+	if len(p.game.gamepads) > 0 {
+		if runtime.GOOS != "windows" {
+			return p.game.gamepads[0].axes[1] >= 0.30
+		}
 		return p.game.gamepads[0].axes[1] <= -0.30
 	}
+	return ebiten.IsKeyPressed(ebiten.KeyS)
 }
 
 func (p *Player) MovingDownMore() bool {
-	if len(p.game.gamepads) == 0 {
-		return false
-	}
-	if runtime.GOOS != "windows" {
-		return p.game.gamepads[0].axes[1] >= 0.80
-	} else {
+	if len(p.game.gamepads) > 0 {
+		if runtime.GOOS != "windows" {
+			return p.game.gamepads[0].axes[1] >= 0.80
+		}
 		return p.game.gamepads[0].axes[1] <= -0.80
 	}
+	return ebiten.IsKeyPressed(ebiten.KeyS)
 }
