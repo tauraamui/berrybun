@@ -113,14 +113,15 @@ func (m *Map) Update(screen *ebiten.Image) error {
 }
 
 type Player struct {
-	game                    *Game
-	animation               *Animation
-	idleAnimation           *Animation
-	hopRightAnimation       *Animation
-	hopLeftAnimation        *Animation
-	hopForwardAnimation     *Animation
-	hopDownAnimation        *Animation
-	hopForwardLeftAnimation *Animation
+	game                     *Game
+	animation                *Animation
+	idleAnimation            *Animation
+	hopRightAnimation        *Animation
+	hopLeftAnimation         *Animation
+	hopForwardAnimation      *Animation
+	hopDownAnimation         *Animation
+	hopForwardLeftAnimation  *Animation
+	hopForwardRightAnimation *Animation
 
 	speed int
 }
@@ -222,6 +223,19 @@ func (p *Player) Init() {
 		frameHeight:  32,
 		frame0X:      0,
 		frame0Y:      160,
+		frameNum:     6,
+		defaultSpeed: 8,
+		speed:        8,
+		count:        -1,
+	}
+
+	p.hopForwardRightAnimation = &Animation{
+		id:           6,
+		spritesheet:  animSpriteSheet,
+		frameWidth:   32,
+		frameHeight:  32,
+		frame0X:      0,
+		frame0Y:      192,
 		frameNum:     6,
 		defaultSpeed: 8,
 		speed:        8,
@@ -337,12 +351,34 @@ func (p *Player) UpdateAnimation() {
 			p.hopLeftAnimation.Reset()
 			p.animation = p.hopForwardLeftAnimation
 		}
+
+		if p.MovingLeftMore() || p.MovingUpMore() {
+			if p.animation.speed > 6 {
+				p.animation.speed--
+			}
+		} else {
+			p.animation.speed = p.animation.defaultSpeed
+		}
 	}
 
 	if p.MovingLeft() && p.MovingDown() {
 	}
 
 	if p.MovingRight() && p.MovingUp() {
+		playerMoving = true
+		if p.animation.id != p.hopForwardRightAnimation.id {
+			p.animation.Reset()
+			p.hopLeftAnimation.Reset()
+			p.animation = p.hopForwardRightAnimation
+		}
+
+		if p.MovingRightMore() || p.MovingUpMore() {
+			if p.animation.speed > 6 {
+				p.animation.speed--
+			}
+		} else {
+			p.animation.speed = p.animation.defaultSpeed
+		}
 	}
 
 	if p.MovingRight() && p.MovingDown() {
