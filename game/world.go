@@ -361,28 +361,40 @@ func (p *Player) MovingRight() bool {
 	if len(p.game.gamepads) > 0 {
 		return p.game.gamepads[0].axes[0] >= 0.30
 	}
-	return ebiten.IsKeyPressed(ebiten.KeyD)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyD)
+	}
+	return false
 }
 
 func (p *Player) MovingRightMore() bool {
 	if len(p.game.gamepads) > 0 {
 		return p.game.gamepads[0].axes[0] >= 0.80
 	}
-	return ebiten.IsKeyPressed(ebiten.KeyD)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyD)
+	}
+	return false
 }
 
 func (p *Player) MovingLeft() bool {
 	if len(p.game.gamepads) > 0 {
 		return p.game.gamepads[0].axes[0] <= -0.30
 	}
-	return ebiten.IsKeyPressed(ebiten.KeyA)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyA)
+	}
+	return false
 }
 
 func (p *Player) MovingLeftMore() bool {
 	if len(p.game.gamepads) > 0 {
 		return p.game.gamepads[0].axes[0] <= -0.80
 	}
-	return ebiten.IsKeyPressed(ebiten.KeyA)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyA)
+	}
+	return false
 }
 
 func (p *Player) MovingUp() bool {
@@ -393,7 +405,10 @@ func (p *Player) MovingUp() bool {
 		return p.game.gamepads[0].axes[1] >= 0.30
 	}
 
-	return ebiten.IsKeyPressed(ebiten.KeyW)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyW)
+	}
+	return false
 }
 
 func (p *Player) MovingUpMore() bool {
@@ -403,8 +418,10 @@ func (p *Player) MovingUpMore() bool {
 		}
 		return p.game.gamepads[0].axes[1] >= 0.80
 	}
-
-	return ebiten.IsKeyPressed(ebiten.KeyW)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyW)
+	}
+	return false
 }
 
 func (p *Player) MovingDown() bool {
@@ -414,7 +431,10 @@ func (p *Player) MovingDown() bool {
 		}
 		return p.game.gamepads[0].axes[1] <= -0.30
 	}
-	return ebiten.IsKeyPressed(ebiten.KeyS)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyS)
+	}
+	return false
 }
 
 func (p *Player) MovingDownMore() bool {
@@ -424,5 +444,9 @@ func (p *Player) MovingDownMore() bool {
 		}
 		return p.game.gamepads[0].axes[1] <= -0.80
 	}
-	return ebiten.IsKeyPressed(ebiten.KeyS)
+	if p.game.AllowKeyboard {
+		return ebiten.IsKeyPressed(ebiten.KeyS)
+	}
+
+	return false
 }

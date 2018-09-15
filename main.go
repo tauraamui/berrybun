@@ -1,14 +1,24 @@
 package main
 
 import (
+	"flag"
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/tauraamui/berrybun/game"
 )
 
+func parseOptionFlags(g *game.Game) {
+	flag.BoolVar(&g.AllowKeyboard, "allowkbrd", false, "Turns on accepting keyboard based controls")
+
+	flag.Parse()
+}
+
 func main() {
 	var game = game.Game{}
+
+	parseOptionFlags(&game)
+
 	game.Init()
 
 	//ebiten.SetFullscreen(true)

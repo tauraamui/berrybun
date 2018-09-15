@@ -29,11 +29,12 @@ func (gpi *GamePadInput) update() {
 }
 
 type Game struct {
-	mu       sync.Mutex
-	cameraX  int
-	cameraY  int
-	world    *World
-	gamepads []GamePadInput
+	mu            sync.Mutex
+	AllowKeyboard bool
+	cameraX       int
+	cameraY       int
+	world         *World
+	gamepads      []GamePadInput
 }
 
 func (g *Game) Init() {
