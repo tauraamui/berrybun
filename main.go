@@ -12,6 +12,7 @@ import (
 
 func parseOptionFlags(g *game.Game) {
 	flag.BoolVar(&g.Debug, "dbg", false, "Enable game's debug mode")
+	flag.BoolVar(&g.Fullscreen, "fs", false, "Set game to be fullscreen")
 	flag.BoolVar(&g.AllowKeyboard, "allowkbrd", false, "Turns on accepting keyboard based controls")
 
 	flag.Parse()
@@ -28,8 +29,6 @@ func main() {
 
 	game.Init()
 
-	//ebiten.SetFullscreen(true)
-
 	w, h := ebiten.MonitorSize()
 	// On mobiles, ebiten.MonitorSize is not available so far.
 	// Use arbitrary values.
@@ -38,12 +37,17 @@ func main() {
 		h = 450
 	}
 
-	// ebiten.SetFullscreen(true)
+	ebiten.SetFullscreen(game.Fullscreen)
 
 	s := ebiten.DeviceScaleFactor()
 
-	// if err := ebiten.Run(game.Update, int(float64(w)*s), int(float64(h)*s), 1/s, "Berrybun Game"); err != nil {
-	if err := ebiten.Run(game.Update, 800, 600, 1/s, "Berrybun Game"); err != nil {
+	var sw, sh int = 800, 600
+
+	if game.Fullscreen {
+		sw, sh = int(float64(w)*s), int(float64(h)*s)
+	}
+
+	if err := ebiten.Run(game.Update, sw, sh, 1/s, "Berrybun Game"); err != nil {
 		panic(err)
 	}
 }

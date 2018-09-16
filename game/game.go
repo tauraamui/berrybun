@@ -32,6 +32,7 @@ func (gpi *GamePadInput) update() {
 type Game struct {
 	mu            sync.Mutex
 	Debug         bool
+	Fullscreen    bool
 	AllowKeyboard bool
 	cameraX       int
 	cameraY       int
