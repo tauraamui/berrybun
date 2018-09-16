@@ -100,45 +100,59 @@ func (m *Map) Update(screen *ebiten.Image) error {
 	skippedTileCount := 0
 
 	sw, sh := screen.Size()
+	// work out width/height scale factor based on percentage of screen size
 	swf := float64(sw) - (float64(sw) * float64(0.9991))
 	shf := float64(sh) - (float64(sh) * float64(0.9988))
 
+	// for each y row of map tiles
 	for y := 0; y < len(m.bglayer); y++ {
 		xTiles := len(m.bglayer[y])
+		// for each tile in row
 		for x := 0; x < xTiles; x++ {
 
+			// set zeroed tile position
 			tileXPos, tileYPos := 0.0, 0.0
 
+			// transform tile positon based on tile matrix index
 			tileXPos += float64((x % xTiles) * spriteSize)
 			tileYPos += float64(y * spriteSize)
 
+			// calculate tile width/height after scaling
 			var tileWidth, tileHeight float64 = 16, 16
 			tileWidth *= scale + swf
 			tileHeight *= scale + shf
 
+			// put the least intensive and most indicitive bound checks first for speed purposes
+
+			// if the tile's x axis pos is further than the right edge of the screen, skip rendering tile
 			if int(tileXPos) > m.world.game.cameraX+sw {
 				skippedTileCount++
 				continue
 			}
 
+			// if the tile's x axis pos is between the left and right edges of the screen, skip rendering tile
 			if int(tileXPos) < m.world.game.cameraX && int(tileXPos+tileWidth) < m.world.game.cameraX {
 				skippedTileCount++
 				continue
 			}
 
+			// if the tile's y position is further than the bottom edge of the screen, (the *-1 is to invert the camera Y pos) skip rendering tile
 			if int(tileYPos) > (m.world.game.cameraY*-1)+sh {
 				continue
 			}
 
+			// if the tile is completely out above the top edge of the screen, skip rendering tile
 			if int(tileYPos+tileHeight) < m.world.game.cameraY*-1 {
 				continue
 			}
 
+			// set rendering location on screen
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64((x%xTiles)*spriteSize), float64(y*spriteSize))
 			op.GeoM.Translate(float64(m.world.game.cameraX*-1), float64(m.world.game.cameraY))
 			op.GeoM.Scale(scale+swf, scale+shf)
 
+			// crop/select sprite from the spritesheet
 			r := image.Rect(m.bglayer[y][x]*spriteSize, 0, (m.bglayer[y][x]+1)*spriteSize, (m.bglayer[y][x]+1)*spriteSize)
 			op.SourceRect = &r
 
