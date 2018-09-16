@@ -56,14 +56,14 @@ func (m *Map) Init() error {
 		panic(err)
 	}
 
-	m.bglayer = make([][]int, 40)
+	m.bglayer = make([][]int, 80)
 
 	for y := 0; y < len(m.bglayer); y++ {
-		newRow := make([]int, 50)
+		newRow := make([]int, 100)
 		if y%6 == 0 {
 			var grassOnRow = 0
 			for i := 0; i < len(newRow); i++ {
-				if i > 2 && rand.Intn(3) == 2 && grassOnRow < 5 {
+				if i > 2 && rand.Intn(2) == 1 && grassOnRow < 30 {
 					grass := rand.Intn(2)
 					newRow[i] = grass
 					if grass == 1 {
