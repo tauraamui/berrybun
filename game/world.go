@@ -1,10 +1,12 @@
 package game
 
 import (
+	"fmt"
 	"image"
 	"math/rand"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/hajimehoshi/ebiten"
 )
@@ -30,9 +32,10 @@ func (w *World) Update(screen *ebiten.Image) error {
 }
 
 type Map struct {
-	world         *World
-	bgSpriteSheet *ebiten.Image
-	bglayer       [][]int
+	world                     *World
+	bgSpriteSheet             *ebiten.Image
+	bglayer                   [][]int
+	skippedTileLastOutputTime time.Time
 }
 
 func (m *Map) Init() error {
@@ -56,10 +59,10 @@ func (m *Map) Init() error {
 		panic(err)
 	}
 
-	m.bglayer = make([][]int, 80)
+	m.bglayer = make([][]int, 500)
 
 	for y := 0; y < len(m.bglayer); y++ {
-		newRow := make([]int, 100)
+		newRow := make([]int, 500)
 		if y%6 == 0 {
 			var grassOnRow = 0
 			for i := 0; i < len(newRow); i++ {
@@ -90,16 +93,48 @@ func (m *Map) Update(screen *ebiten.Image) error {
 
 	scale := ebiten.DeviceScaleFactor()
 
+	skippedTileCount := 0
+
+	sw, sh := screen.Size()
+	swf := float64(sw) - (float64(sw) * float64(0.9991))
+	shf := float64(sh) - (float64(sh) * float64(0.9988))
+
 	for y := 0; y < len(m.bglayer); y++ {
 		xTiles := len(m.bglayer[y])
 		for x := 0; x < xTiles; x++ {
+
+			tileXPos, tileYPos := 0.0, 0.0
+
+			tileXPos += float64((x % xTiles) * spriteSize)
+			tileYPos += float64(y * spriteSize)
+
+			var tileWidth, tileHeight float64 = 16, 16
+			tileWidth *= scale + swf
+			tileHeight *= scale + shf
+
+			if int(tileXPos) > m.world.game.cameraX+sw {
+				skippedTileCount++
+				continue
+			}
+
+			if int(tileXPos) < m.world.game.cameraX && int(tileXPos+tileWidth) < m.world.game.cameraX {
+				skippedTileCount++
+				continue
+			}
+
+			if int(tileYPos) > (m.world.game.cameraY*-1)+sh {
+				continue
+			}
+
+			if int(tileYPos+tileHeight) < m.world.game.cameraY*-1 {
+				continue
+			}
+
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64((x%xTiles)*spriteSize), float64(y*spriteSize))
 			op.GeoM.Translate(float64(m.world.game.cameraX*-1), float64(m.world.game.cameraY))
-			sw, sh := screen.Size()
-			swf := float64(sw) - (float64(sw) * float64(0.9991))
-			shf := float64(sh) - (float64(sh) * float64(0.9988))
 			op.GeoM.Scale(scale+swf, scale+shf)
+
 			r := image.Rect(m.bglayer[y][x]*spriteSize, 0, (m.bglayer[y][x]+1)*spriteSize, (m.bglayer[y][x]+1)*spriteSize)
 			op.SourceRect = &r
 
@@ -107,6 +142,11 @@ func (m *Map) Update(screen *ebiten.Image) error {
 				return err
 			}
 		}
+	}
+
+	if time.Since(m.skippedTileLastOutputTime) > time.Second*3 {
+		fmt.Printf("Skipped %d tiles\n", skippedTileCount)
+		m.skippedTileLastOutputTime = time.Now()
 	}
 
 	return nil
