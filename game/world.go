@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/tacusci/logging"
+
 	"github.com/hajimehoshi/ebiten"
 )
 
@@ -162,9 +164,11 @@ func (m *Map) Update(screen *ebiten.Image) error {
 		}
 	}
 
-	if time.Since(m.skippedTileLastOutputTime) > time.Second*3 {
-		fmt.Printf("Skipped %d tiles\n", skippedTileCount)
-		m.skippedTileLastOutputTime = time.Now()
+	if logging.CurrentLoggingLevel == logging.DebugLevel {
+		if time.Since(m.skippedTileLastOutputTime) > time.Second*3 {
+			logging.Debug(fmt.Sprintf("Skipped %d tiles", skippedTileCount))
+			m.skippedTileLastOutputTime = time.Now()
+		}
 	}
 
 	return nil

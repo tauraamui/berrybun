@@ -4,11 +4,14 @@ import (
 	"flag"
 	_ "image/png"
 
+	"github.com/tacusci/logging"
+
 	"github.com/hajimehoshi/ebiten"
 	"github.com/tauraamui/berrybun/game"
 )
 
 func parseOptionFlags(g *game.Game) {
+	flag.BoolVar(&g.Debug, "dbg", false, "Enable game's debug mode")
 	flag.BoolVar(&g.AllowKeyboard, "allowkbrd", false, "Turns on accepting keyboard based controls")
 
 	flag.Parse()
@@ -18,6 +21,10 @@ func main() {
 	var game = game.Game{}
 
 	parseOptionFlags(&game)
+
+	if game.Debug {
+		logging.SetLevel(logging.DebugLevel)
+	}
 
 	game.Init()
 

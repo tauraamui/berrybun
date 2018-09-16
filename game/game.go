@@ -3,8 +3,9 @@ package game
 import (
 	"fmt"
 	"image"
-	"log"
 	"sync"
+
+	"github.com/tacusci/logging"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
@@ -30,6 +31,7 @@ func (gpi *GamePadInput) update() {
 
 type Game struct {
 	mu            sync.Mutex
+	Debug         bool
 	AllowKeyboard bool
 	cameraX       int
 	cameraY       int
@@ -85,7 +87,9 @@ func (g *Game) DeleteGamepad(gpid int) {
 func (g *Game) updateGamepads() {
 	// check for any disconnected gamepads and remove from game
 	for _, id := range inpututil.JustConnectedGamepadIDs() {
-		log.Printf("gamepad connected: id: %d", id)
+		if logging.CurrentLoggingLevel == logging.DebugLevel {
+			logging.Debug(fmt.Sprintf("gamepad connected: id: %d", id))
+		}
 		gamepadAlreadyInList := false
 		for _, gp := range g.gamepads {
 			if gp.id == id {
@@ -104,7 +108,9 @@ func (g *Game) updateGamepads() {
 	// check for any connected gamepads and add them to the game
 	for i := 0; i < len(g.gamepads); i++ {
 		if inpututil.IsGamepadJustDisconnected(g.gamepads[i].id) {
-			log.Printf("gamepad disconnected: id: %d", g.gamepads[i].id)
+			if logging.CurrentLoggingLevel == logging.DebugLevel {
+				logging.Debug(fmt.Sprintf("gamepad disconnected: id: %d", g.gamepads[i].id))
+			}
 			g.DeleteGamepad(g.gamepads[i].id)
 		}
 	}
