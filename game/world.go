@@ -41,6 +41,7 @@ type Map struct {
 	bglayer                   [][]int
 	bgwidth                   int
 	bgheight                  int
+	buildings                 []Building
 	skippedTileLastOutputTime time.Time
 }
 
@@ -83,6 +84,18 @@ func (m *Map) Init() error {
 		}
 		m.bglayer[y] = newRow
 	}
+
+	m.buildings = append(m.buildings, Building{
+		spritesheet: m.bgSpriteSheet,
+		x:           30,
+		y:           30,
+		width:       20,
+		height:      20,
+		tilex0:      2,
+		tiley0:      0,
+		tilex1:      2,
+		tiley1:      0,
+	})
 
 	return nil
 }
@@ -168,6 +181,27 @@ func (m *Map) Update(screen *ebiten.Image) error {
 		if time.Since(m.skippedTileLastOutputTime) > time.Second*3 {
 			logging.Debug(fmt.Sprintf("Skipped %d tiles", skippedTileCount))
 			m.skippedTileLastOutputTime = time.Now()
+		}
+	}
+
+	for i := 0; i < len(m.buildings); i++ {
+		building := m.buildings[i]
+		for x := 0; x < building.width; x++ {
+			for y := 0; y < building.height; y++ {
+				// set rendering location on screen
+				op := &ebiten.DrawImageOptions{}
+				op.GeoM.Translate(float64(0), float64(0))
+				op.GeoM.Translate(float64(m.world.game.cameraX*-1), float64(m.world.game.cameraY))
+				op.GeoM.Scale(scale+swf, scale+shf)
+
+				// crop/select sprite from the spritesheet
+				r := image.Rect(2, 0, 2, 0)
+				op.SourceRect = &r
+
+				if err := screen.DrawImage(building.spritesheet, op); err != nil {
+					return err
+				}
+			}
 		}
 	}
 
@@ -549,4 +583,27 @@ func (p *Player) MovingDownMore() bool {
 	}
 
 	return false
+}
+
+type Building struct {
+	spritesheet *ebiten.Image
+	x           int
+	y           int
+	width       int
+	height      int
+	tilex0      int
+	tilex1      int
+	tiley0      int
+	tiley1      int
+}
+
+func (b *Building) Update(screen *ebiten.Image) error {
+
+	for x := 0; x < b.width; x++ {
+		for y := 0; y < b.height; y++ {
+
+		}
+	}
+
+	return nil
 }
