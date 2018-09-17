@@ -21,9 +21,9 @@ type World struct {
 
 func (w *World) Init() {
 	w.wMap = &Map{
-		world:  w,
-		width:  500,
-		height: 500,
+		world:    w,
+		bgwidth:  500,
+		bgheight: 500,
 	}
 	w.wMap.Init()
 	w.player.Init()
@@ -39,8 +39,8 @@ type Map struct {
 	world                     *World
 	bgSpriteSheet             *ebiten.Image
 	bglayer                   [][]int
-	width                     int
-	height                    int
+	bgwidth                   int
+	bgheight                  int
 	skippedTileLastOutputTime time.Time
 }
 
@@ -65,14 +65,14 @@ func (m *Map) Init() error {
 		panic(err)
 	}
 
-	m.bglayer = make([][]int, m.height)
+	m.bglayer = make([][]int, m.bgheight)
 
 	for y := 0; y < len(m.bglayer); y++ {
-		newRow := make([]int, m.width)
+		newRow := make([]int, m.bgwidth)
 		if y%6 == 0 {
 			var grassOnRow = 0
 			for i := 0; i < len(newRow); i++ {
-				if i > 2 && rand.Intn(2) == 1 && grassOnRow < int(float64(m.width)*0.75) {
+				if i > 2 && rand.Intn(2) == 1 && grassOnRow < int(float64(m.bgwidth)*0.75) {
 					grass := rand.Intn(2)
 					newRow[i] = grass
 					if grass == 1 {
