@@ -174,6 +174,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 	return nil
 }
 
+//Player data about player instance
 type Player struct {
 	game                     *Game
 	animation                *Animation
@@ -188,6 +189,7 @@ type Player struct {
 	speed int
 }
 
+//Init initialise player's animations, load spritesheet etc.,
 func (p *Player) Init() {
 
 	bunnyAnimationsFile, err := os.Open("./res/bunny.png")
