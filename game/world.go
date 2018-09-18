@@ -186,24 +186,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 	}
 
 	for i := 0; i < len(m.buildings); i++ {
-		building := m.buildings[i]
-		for x := 0; x < building.width; x++ {
-			for y := 0; y < building.height; y++ {
-				// set rendering location on screen
-				op := &ebiten.DrawImageOptions{}
-				op.GeoM.Translate(float64(0), float64(0))
-				op.GeoM.Translate(float64(m.world.game.cameraX*-1), float64(m.world.game.cameraY))
-				op.GeoM.Scale(scale+swf, scale+shf)
-
-				// crop/select sprite from the spritesheet
-				r := image.Rect(2, 0, 2, 0)
-				op.SourceRect = &r
-
-				if err := screen.DrawImage(building.spritesheet, op); err != nil {
-					return err
-				}
-			}
-		}
+		m.buildings[0].Update(screen)
 	}
 
 	return nil
