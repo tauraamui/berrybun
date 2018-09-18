@@ -70,11 +70,11 @@ func (m *Map) Init() error {
 
 	for y := 0; y < len(m.bglayer); y++ {
 		newRow := make([]int, m.bgwidth)
-		if y%6 == 0 {
+		if y%(rand.Intn(3)+1) == 0 {
 			var grassOnRow = 0
 			for i := 0; i < len(newRow); i++ {
 				if i > 2 && rand.Intn(2) == 1 && grassOnRow < int(float64(m.bgwidth)*0.75) {
-					grass := rand.Intn(2)
+					grass := rand.Intn(3)
 					newRow[i] = grass
 					if grass == 1 {
 						grassOnRow++
