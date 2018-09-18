@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/tacusci/logging"
+	"github.com/tauraamui/berrybun/utils"
 
 	"github.com/hajimehoshi/ebiten"
 )
@@ -71,13 +72,18 @@ func (m *Map) Init() error {
 	// initial values of slices will be zero, so set random indexes to be grass or flowers or something else
 	for y := 0; y < len(m.bglayer); y++ {
 		newRow := make([]int, m.bgwidth)
-		if y%(rand.Intn(4)+1) == 0 {
-			var grassOnRow = 0
-			for i := 0; i < len(newRow); i++ {
-				if i > 2 && rand.Intn(2) == 1 && grassOnRow < int(float64(m.bgwidth)*0.75) {
+		for x := 0; x < len(m.bglayer); x++ {
+			newRow[x] = utils.CombineNumbers(float64(18), float64(9))
+			if y%(rand.Intn(4)+1) == 0 {
+				var grassOnRow = 0
+				if x > 2 && rand.Intn(2) == 1 && grassOnRow < int(float64(m.bgwidth)*0.75) {
 					grass := rand.Intn(3)
-					newRow[i] = grass
 					if grass == 1 {
+						newRow[x] = utils.CombineNumbers(float64(18), float64(8))
+					} else if grass == 2 {
+						newRow[x] = utils.CombineNumbers(float64(19), float64(8))
+					}
+					if grass == 1 || grass == 2 {
 						grassOnRow++
 					}
 				}
@@ -91,12 +97,29 @@ func (m *Map) Init() error {
 		spritesheet: m.bgSpriteSheet,
 		x:           30,
 		y:           30,
-		width:       20,
-		height:      20,
-		tilex0:      2,
-		tiley0:      0,
-		tilex1:      2,
-		tiley1:      0,
+		width:       6,
+		height:      5,
+		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
+	})
+
+	m.buildings = append(m.buildings, Building{
+		m:           m,
+		spritesheet: m.bgSpriteSheet,
+		x:           250,
+		y:           30,
+		width:       6,
+		height:      5,
+		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
+	})
+
+	m.buildings = append(m.buildings, Building{
+		m:           m,
+		spritesheet: m.bgSpriteSheet,
+		x:           500,
+		y:           30,
+		width:       6,
+		height:      5,
+		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
 	})
 
 	return nil
@@ -170,7 +193,11 @@ func (m *Map) Update(screen *ebiten.Image) error {
 			op.GeoM.Scale(scale+swf, scale+shf)
 
 			// crop/select sprite from the spritesheet
-			r := image.Rect(m.bglayer[y][x]*spriteSize, 0, (m.bglayer[y][x]+1)*spriteSize, (m.bglayer[y][x]+1)*spriteSize)
+			tileX, tileY := utils.SplitNumbers(m.bglayer[y][x])
+
+			r := image.Rect(tileX*spriteSize, tileY*spriteSize, (tileX*spriteSize)+spriteSize, (tileY*spriteSize)+spriteSize)
+
+			// r := image.Rect(m.bglayer[y][x]*spriteSize, 0, (m.bglayer[y][x]+1)*spriteSize, (m.bglayer[y][x]+1)*spriteSize)
 			op.SourceRect = &r
 
 			if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
@@ -187,7 +214,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 	}
 
 	for i := 0; i < len(m.buildings); i++ {
-		m.buildings[0].Update(screen)
+		m.buildings[i].Update(screen)
 	}
 
 	return nil
@@ -577,24 +604,40 @@ type Building struct {
 	y           int
 	width       int
 	height      int
-	tilex0      int
-	tilex1      int
-	tiley0      int
-	tiley1      int
+	tileXY      int
 }
 
 func (b *Building) Update(screen *ebiten.Image) error {
-	logging.Debug("rendering building")
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(20), float64(20))
-	op.GeoM.Translate(float64(b.m.world.game.cameraX*-1), float64(b.m.world.game.cameraY))
 
-	// crop/select sprite from the spritesheet
-	r := image.Rect(1, 1, 1, 1)
-	op.SourceRect = &r
+	const (
+		spriteSize = 16
+	)
 
-	if err := screen.DrawImage(b.m.bgSpriteSheet, op); err != nil {
-		return err
+	scale := ebiten.DeviceScaleFactor()
+
+	sw, sh := screen.Size()
+	// work out width/height scale factor based on percentage of screen size
+	swf := float64(sw) - (float64(sw) * float64(0.9991))
+	shf := float64(sh) - (float64(sh) * float64(0.9988))
+
+	for h := 0; h < b.height; h++ {
+		for w := 0; w < b.width; w++ {
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(float64(b.x+(w*spriteSize)), float64(b.y+(h*spriteSize)))
+			op.GeoM.Translate(float64(b.m.world.game.cameraX*-1), float64(b.m.world.game.cameraY))
+			op.GeoM.Scale(scale+swf, scale+shf)
+
+			// crop/select sprite from the spritesheet
+			tileX, tileY := utils.SplitNumbers(b.tileXY)
+
+			r := image.Rect((tileX+w)*spriteSize, (tileY+h)*spriteSize, ((tileX+w)*spriteSize)+spriteSize, ((tileY+h)*spriteSize)+spriteSize)
+
+			op.SourceRect = &r
+
+			if err := screen.DrawImage(b.m.bgSpriteSheet, op); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
