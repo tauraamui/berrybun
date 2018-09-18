@@ -87,6 +87,7 @@ func (m *Map) Init() error {
 	}
 
 	m.buildings = append(m.buildings, Building{
+		m:           m,
 		spritesheet: m.bgSpriteSheet,
 		x:           30,
 		y:           30,
@@ -570,6 +571,7 @@ func (p *Player) MovingDownMore() bool {
 }
 
 type Building struct {
+	m           *Map
 	spritesheet *ebiten.Image
 	x           int
 	y           int
@@ -582,11 +584,17 @@ type Building struct {
 }
 
 func (b *Building) Update(screen *ebiten.Image) error {
+	logging.Debug("rendering building")
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(20), float64(20))
+	op.GeoM.Translate(float64(b.m.world.game.cameraX*-1), float64(b.m.world.game.cameraY))
 
-	for x := 0; x < b.width; x++ {
-		for y := 0; y < b.height; y++ {
+	// crop/select sprite from the spritesheet
+	r := image.Rect(1, 1, 1, 1)
+	op.SourceRect = &r
 
-		}
+	if err := screen.DrawImage(b.m.bgSpriteSheet, op); err != nil {
+		return err
 	}
 
 	return nil
