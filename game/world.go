@@ -100,7 +100,7 @@ func (m *Map) Init() error {
 		x:           15,
 		y:           15,
 		width:       7,
-		height:      6,
+		height:      7,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
 	})
 
@@ -110,7 +110,7 @@ func (m *Map) Init() error {
 		x:           239,
 		y:           15,
 		width:       7,
-		height:      6,
+		height:      7,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
 	})
 
@@ -120,7 +120,7 @@ func (m *Map) Init() error {
 		x:           463,
 		y:           15,
 		width:       7,
-		height:      6,
+		height:      7,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
 	})
 
