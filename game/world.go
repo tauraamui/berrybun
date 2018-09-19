@@ -1,14 +1,16 @@
 package game
 
 import (
+	"bytes"
 	"fmt"
 	"image"
+	"log"
 	"math/rand"
-	"os"
 	"runtime"
 	"time"
 
 	"github.com/tacusci/logging"
+	"github.com/tauraamui/berrybun/res"
 	"github.com/tauraamui/berrybun/utils"
 
 	"github.com/hajimehoshi/ebiten"
@@ -49,18 +51,11 @@ type Map struct {
 }
 
 func (m *Map) Init() error {
-	mapTileSizeShape, err := os.Open("./res/map.png")
+
+	img, _, err := image.Decode(bytes.NewReader(res.Map_png))
 
 	if err != nil {
-		panic(err)
-	}
-
-	defer mapTileSizeShape.Close()
-
-	img, _, err := image.Decode(mapTileSizeShape)
-
-	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	m.bgSpriteSheet, err = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
@@ -240,18 +235,10 @@ type Player struct {
 //Init initialise player's animations, load spritesheet etc.,
 func (p *Player) Init() {
 
-	bunnyAnimationsFile, err := os.Open("./res/bunny.png")
+	img, _, err := image.Decode(bytes.NewReader(res.Bunny_png))
 
 	if err != nil {
-		panic(err)
-	}
-
-	defer bunnyAnimationsFile.Close()
-
-	img, _, err := image.Decode(bunnyAnimationsFile)
-
-	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	animSpriteSheet, err := ebiten.NewImageFromImage(img, ebiten.FilterDefault)
