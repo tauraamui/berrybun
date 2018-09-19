@@ -96,7 +96,6 @@ func (m *Map) Init() error {
 
 	m.buildings = append(m.buildings, Building{
 		game:        m.game,
-		m:           m,
 		spritesheet: m.bgSpriteSheet,
 		x:           30,
 		y:           30,
@@ -107,7 +106,6 @@ func (m *Map) Init() error {
 
 	m.buildings = append(m.buildings, Building{
 		game:        m.game,
-		m:           m,
 		spritesheet: m.bgSpriteSheet,
 		x:           250,
 		y:           30,
@@ -118,7 +116,6 @@ func (m *Map) Init() error {
 
 	m.buildings = append(m.buildings, Building{
 		game:        m.game,
-		m:           m,
 		spritesheet: m.bgSpriteSheet,
 		x:           500,
 		y:           30,
@@ -604,7 +601,6 @@ func (p *Player) MovingDownMore() bool {
 
 type Building struct {
 	game        *Game
-	m           *Map
 	spritesheet *ebiten.Image
 	x           int
 	y           int
