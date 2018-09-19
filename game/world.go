@@ -22,6 +22,7 @@ type World struct {
 
 func (w *World) Init() {
 	w.wMap = &Map{
+		game:     w.game,
 		world:    w,
 		bgwidth:  500,
 		bgheight: 500,
@@ -37,6 +38,7 @@ func (w *World) Update(screen *ebiten.Image) error {
 }
 
 type Map struct {
+	game                      *Game
 	world                     *World
 	bgSpriteSheet             *ebiten.Image
 	bglayer                   [][]int
@@ -93,6 +95,7 @@ func (m *Map) Init() error {
 	}
 
 	m.buildings = append(m.buildings, Building{
+		game:        m.game,
 		m:           m,
 		spritesheet: m.bgSpriteSheet,
 		x:           30,
@@ -103,6 +106,7 @@ func (m *Map) Init() error {
 	})
 
 	m.buildings = append(m.buildings, Building{
+		game:        m.game,
 		m:           m,
 		spritesheet: m.bgSpriteSheet,
 		x:           250,
@@ -113,6 +117,7 @@ func (m *Map) Init() error {
 	})
 
 	m.buildings = append(m.buildings, Building{
+		game:        m.game,
 		m:           m,
 		spritesheet: m.bgSpriteSheet,
 		x:           500,
@@ -598,6 +603,7 @@ func (p *Player) MovingDownMore() bool {
 }
 
 type Building struct {
+	game        *Game
 	m           *Map
 	spritesheet *ebiten.Image
 	x           int
@@ -624,7 +630,7 @@ func (b *Building) Update(screen *ebiten.Image) error {
 		for w := 0; w < b.width; w++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64(b.x+(w*spriteSize)), float64(b.y+(h*spriteSize)))
-			op.GeoM.Translate(float64(b.m.world.game.cameraX*-1), float64(b.m.world.game.cameraY))
+			op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
 			op.GeoM.Scale(scale+swf, scale+shf)
 
 			// crop/select sprite from the spritesheet
@@ -634,7 +640,7 @@ func (b *Building) Update(screen *ebiten.Image) error {
 
 			op.SourceRect = &r
 
-			if err := screen.DrawImage(b.m.bgSpriteSheet, op); err != nil {
+			if err := screen.DrawImage(b.spritesheet, op); err != nil {
 				return err
 			}
 		}
