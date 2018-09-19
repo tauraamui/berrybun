@@ -24,8 +24,8 @@ func (w *World) Init() {
 	w.wMap = &Map{
 		game:     w.game,
 		world:    w,
-		bgwidth:  500,
-		bgheight: 500,
+		bgwidth:  150,
+		bgheight: 150,
 	}
 	w.wMap.Init()
 	w.player.Init()
@@ -628,6 +628,8 @@ func (b *Building) Update(screen *ebiten.Image) error {
 			op.GeoM.Translate(float64(b.x+(w*spriteSize)), float64(b.y+(h*spriteSize)))
 			op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
 			op.GeoM.Scale(scale+swf, scale+shf)
+			op.GeoM.Scale(2, 2)
+			op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
 
 			// crop/select sprite from the spritesheet
 			tileX, tileY := utils.SplitNumbers(b.tileXY)
