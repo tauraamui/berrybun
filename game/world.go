@@ -161,8 +161,8 @@ func (m *Map) Update(screen *ebiten.Image) error {
 
 			// calculate tile width/height after scaling
 			var tileWidth, tileHeight float64 = 16, 16
-			tileWidth *= scale + swf
-			tileHeight *= scale + shf
+			tileWidth *= scale * swf
+			tileHeight *= scale * shf
 
 			// put the least intensive and most indicitive bound checks first for speed purposes
 
@@ -192,7 +192,7 @@ func (m *Map) Update(screen *ebiten.Image) error {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64((x%xTiles)*spriteSize), float64(y*spriteSize))
 			op.GeoM.Translate(float64(m.world.game.cameraX*-1), float64(m.world.game.cameraY))
-			op.GeoM.Scale(scale+swf, scale+shf)
+			op.GeoM.Scale(scale*swf, scale*shf)
 
 			// crop/select sprite from the spritesheet
 			tileX, tileY := utils.SplitNumbers(m.bglayer[y][x])
@@ -634,7 +634,7 @@ func (b *Building) Update(screen *ebiten.Image) error {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64(b.x+(w*spriteSize)), float64(b.y+(h*spriteSize)))
 			op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
-			op.GeoM.Scale(scale+swf, scale+shf)
+			op.GeoM.Scale(scale*swf, scale*shf)
 			op.GeoM.Scale(2, 2)
 			op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
 

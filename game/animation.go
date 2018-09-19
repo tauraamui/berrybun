@@ -40,7 +40,7 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 	sw, sh := screen.Size()
 	swf := float64(sw / a.game.cameraWidth)
 	shf := float64(sh / a.game.cameraHeight)
-	op.GeoM.Scale(scale+swf, scale+shf)
+	op.GeoM.Scale(scale*swf, scale*shf)
 	op.GeoM.Translate(float64(sw)/2, float64(sh)/2)
 	i := (a.count / a.speed) % a.frameNum
 

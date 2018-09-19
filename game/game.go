@@ -44,8 +44,8 @@ type Game struct {
 func (g *Game) Init() {
 	g.cameraX = 0
 	g.cameraY = 0
-	g.cameraWidth = 1920
-	g.cameraHeight = 1080
+	g.cameraWidth = 800
+	g.cameraHeight = 600
 	g.world = &World{
 		game: g,
 		player: &Player{
