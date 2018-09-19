@@ -45,7 +45,7 @@ func (g *Game) Init() {
 	g.cameraX = 0
 	g.cameraY = 0
 	g.cameraWidth = 800
-	g.cameraHeight = 600
+	g.cameraHeight = 450
 	g.world = &World{
 		game: g,
 		player: &Player{
