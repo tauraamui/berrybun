@@ -143,8 +143,8 @@ func (m *Map) Update(screen *ebiten.Image) error {
 
 	sw, sh := screen.Size()
 	// work out width/height scale factor based on percentage of screen size
-	swf := float64(sw) - (float64(sw) * float64(0.9991))
-	shf := float64(sh) - (float64(sh) * float64(0.9988))
+	swf := float64(sw / m.game.cameraWidth)
+	shf := float64(sh / m.game.cameraHeight)
 
 	// for each y row of map tiles
 	for y := 0; y < len(m.bglayer); y++ {
@@ -261,6 +261,7 @@ func (p *Player) Init() {
 	}
 
 	p.idleAnimation = &Animation{
+		game:               p.game,
 		id:                 0,
 		spritesheet:        animSpriteSheet,
 		repeatLoopStart:    0,
@@ -277,6 +278,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopRightAnimation = &Animation{
+		game:         p.game,
 		id:           2,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
@@ -290,6 +292,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopLeftAnimation = &Animation{
+		game:         p.game,
 		id:           3,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
@@ -303,6 +306,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopForwardAnimation = &Animation{
+		game:         p.game,
 		id:           4,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
@@ -316,6 +320,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopDownAnimation = &Animation{
+		game:         p.game,
 		id:           5,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
@@ -329,6 +334,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopForwardLeftAnimation = &Animation{
+		game:         p.game,
 		id:           6,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
@@ -342,6 +348,7 @@ func (p *Player) Init() {
 	}
 
 	p.hopForwardRightAnimation = &Animation{
+		game:         p.game,
 		id:           6,
 		spritesheet:  animSpriteSheet,
 		frameWidth:   32,
@@ -619,8 +626,8 @@ func (b *Building) Update(screen *ebiten.Image) error {
 
 	sw, sh := screen.Size()
 	// work out width/height scale factor based on percentage of screen size
-	swf := float64(sw) - (float64(sw) * float64(0.9991))
-	shf := float64(sh) - (float64(sh) * float64(0.9988))
+	swf := float64(sw / b.game.cameraWidth)
+	shf := float64(sh / b.game.cameraHeight)
 
 	for h := 0; h < b.height; h++ {
 		for w := 0; w < b.width; w++ {

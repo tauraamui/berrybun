@@ -7,6 +7,7 @@ import (
 )
 
 type Animation struct {
+	game               *Game
 	id                 uint
 	spritesheet        *ebiten.Image
 	repeatLoopStart    int
@@ -37,8 +38,8 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(-float64(a.frameWidth)/2, -float64(a.frameHeight)/2)
 	sw, sh := screen.Size()
-	swf := float64(sw) - (float64(sw) * float64(0.9991))
-	shf := float64(sh) - (float64(sh) * float64(0.9988))
+	swf := float64(sw / a.game.cameraWidth)
+	shf := float64(sh / a.game.cameraHeight)
 	op.GeoM.Scale(scale+swf, scale+shf)
 	op.GeoM.Translate(float64(sw)/2, float64(sh)/2)
 	i := (a.count / a.speed) % a.frameNum
