@@ -631,8 +631,9 @@ func (b *Building) Update(screen *ebiten.Image) error {
 
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(float64(b.x+(b.width*spriteSize)), float64(b.y+(b.height*spriteSize)))
-	op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
+	op.GeoM.Translate(float64(b.game.cameraX*-1)/2, float64(b.game.cameraY)/2)
 	op.GeoM.Scale(scale*swf, scale*shf)
+	op.GeoM.Scale(2, 2)
 
 	// crop/select sprite from the spritesheet
 	tileX, tileY := utils.SplitNumbers(b.tileXY)
