@@ -97,8 +97,8 @@ func (m *Map) Init() error {
 	m.buildings = append(m.buildings, Building{
 		game:        m.game,
 		spritesheet: m.bgSpriteSheet,
-		x:           30,
-		y:           30,
+		x:           15,
+		y:           15,
 		width:       7,
 		height:      6,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
@@ -107,8 +107,8 @@ func (m *Map) Init() error {
 	m.buildings = append(m.buildings, Building{
 		game:        m.game,
 		spritesheet: m.bgSpriteSheet,
-		x:           250,
-		y:           30,
+		x:           239,
+		y:           15,
 		width:       7,
 		height:      6,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
@@ -117,8 +117,8 @@ func (m *Map) Init() error {
 	m.buildings = append(m.buildings, Building{
 		game:        m.game,
 		spritesheet: m.bgSpriteSheet,
-		x:           500,
-		y:           30,
+		x:           463,
+		y:           15,
 		width:       7,
 		height:      6,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
