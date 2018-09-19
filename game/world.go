@@ -99,8 +99,8 @@ func (m *Map) Init() error {
 		spritesheet: m.bgSpriteSheet,
 		x:           30,
 		y:           30,
-		width:       6,
-		height:      5,
+		width:       7,
+		height:      6,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
 	})
 
@@ -109,8 +109,8 @@ func (m *Map) Init() error {
 		spritesheet: m.bgSpriteSheet,
 		x:           250,
 		y:           30,
-		width:       6,
-		height:      5,
+		width:       7,
+		height:      6,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
 	})
 
@@ -119,8 +119,8 @@ func (m *Map) Init() error {
 		spritesheet: m.bgSpriteSheet,
 		x:           500,
 		y:           30,
-		width:       6,
-		height:      5,
+		width:       7,
+		height:      6,
 		tileXY:      utils.CombineNumbers(float64(1), float64(1)),
 	})
 
@@ -629,26 +629,21 @@ func (b *Building) Update(screen *ebiten.Image) error {
 	swf := float64(sw / b.game.cameraWidth)
 	shf := float64(sh / b.game.cameraHeight)
 
-	for h := 0; h < b.height; h++ {
-		for w := 0; w < b.width; w++ {
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(b.x+(w*spriteSize)), float64(b.y+(h*spriteSize)))
-			op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
-			op.GeoM.Scale(scale*swf, scale*shf)
-			op.GeoM.Scale(2, 2)
-			op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(float64(b.x+(b.width*spriteSize)), float64(b.y+(b.height*spriteSize)))
+	op.GeoM.Translate(float64(b.game.cameraX*-1), float64(b.game.cameraY))
+	op.GeoM.Scale(scale*swf, scale*shf)
+	op.GeoM.Scale(2, 2)
 
-			// crop/select sprite from the spritesheet
-			tileX, tileY := utils.SplitNumbers(b.tileXY)
+	// crop/select sprite from the spritesheet
+	tileX, tileY := utils.SplitNumbers(b.tileXY)
 
-			r := image.Rect((tileX+w)*spriteSize, (tileY+h)*spriteSize, ((tileX+w)*spriteSize)+spriteSize, ((tileY+h)*spriteSize)+spriteSize)
+	r := image.Rect(tileX, tileY, tileX+(spriteSize*b.width), tileY+(spriteSize*b.height))
 
-			op.SourceRect = &r
+	op.SourceRect = &r
 
-			if err := screen.DrawImage(b.spritesheet, op); err != nil {
-				return err
-			}
-		}
+	if err := screen.DrawImage(b.spritesheet, op); err != nil {
+		return err
 	}
 
 	return nil
