@@ -51,6 +51,7 @@ func (g *Game) Init() {
 		player: &Player{
 			game: g,
 		},
+		nightTime: g.Debug,
 	}
 	g.world.Init()
 }
@@ -127,6 +128,7 @@ func (g *Game) updateGamepads() {
 //Update updates everything within game state
 func (g *Game) Update(screen *ebiten.Image) error {
 	g.updateGamepads()
+
 	if err := g.world.Update(screen); err != nil {
 		return err
 	}

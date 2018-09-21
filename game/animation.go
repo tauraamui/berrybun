@@ -75,6 +75,11 @@ func (a *Animation) Update(screen *ebiten.Image) error {
 
 	var err error
 	if !ebiten.IsDrawingSkipped() {
+
+		if a.game.world.nightTime {
+			op.ColorM.ChangeHSV(0.0, 1.0, 0.4)
+		}
+
 		err = screen.DrawImage(a.spritesheet, op)
 	}
 

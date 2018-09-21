@@ -17,15 +17,15 @@ import (
 )
 
 type World struct {
-	game   *Game
-	wMap   *Map
-	player *Player
+	game      *Game
+	wMap      *Map
+	player    *Player
+	nightTime bool
 }
 
 func (w *World) Init() {
 	w.wMap = &Map{
 		game:     w.game,
-		world:    w,
 		bgwidth:  150,
 		bgheight: 150,
 	}
@@ -41,7 +41,6 @@ func (w *World) Update(screen *ebiten.Image) error {
 
 type Map struct {
 	game                      *Game
-	world                     *World
 	bgSpriteSheet             *ebiten.Image
 	bglayer                   [][]int
 	bgwidth                   int
@@ -162,43 +161,49 @@ func (m *Map) Update(screen *ebiten.Image) error {
 			// put the least intensive and most indicitive bound checks first for speed purposes
 
 			// if the tile's x axis pos is further than the right edge of the screen, skip rendering tile
-			if int(tileXPos) > m.world.game.cameraX+sw {
+			if int(tileXPos) > m.game.cameraX+sw {
 				skippedTileCount++
 				continue
 			}
 
 			// if the tile's x axis pos is between the left and right edges of the screen, skip rendering tile
-			if int(tileXPos) < m.world.game.cameraX && int(tileXPos+tileWidth) < m.world.game.cameraX {
+			if int(tileXPos) < m.game.cameraX && int(tileXPos+tileWidth) < m.game.cameraX {
 				skippedTileCount++
 				continue
 			}
 
 			// if the tile's y position is further than the bottom edge of the screen, (the *-1 is to invert the camera Y pos) skip rendering tile
-			if int(tileYPos) > (m.world.game.cameraY*-1)+sh {
+			if int(tileYPos) > (m.game.cameraY*-1)+sh {
 				continue
 			}
 
 			// if the tile is completely out above the top edge of the screen, skip rendering tile
-			if int(tileYPos+tileHeight) < m.world.game.cameraY*-1 {
+			if int(tileYPos+tileHeight) < m.game.cameraY*-1 {
 				continue
 			}
 
-			// set rendering location on screen
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64((x%xTiles)*spriteSize), float64(y*spriteSize))
-			op.GeoM.Translate(float64(m.world.game.cameraX*-1), float64(m.world.game.cameraY))
-			op.GeoM.Scale(scale*swf, scale*shf)
+			if !ebiten.IsDrawingSkipped() {
+				// set rendering location on screen
+				op := &ebiten.DrawImageOptions{}
+				op.GeoM.Translate(float64((x%xTiles)*spriteSize), float64(y*spriteSize))
+				op.GeoM.Translate(float64(m.game.cameraX*-1), float64(m.game.cameraY))
+				op.GeoM.Scale(scale*swf, scale*shf)
 
-			// crop/select sprite from the spritesheet
-			tileX, tileY := utils.SplitNumbers(m.bglayer[y][x])
+				// crop/select sprite from the spritesheet
+				tileX, tileY := utils.SplitNumbers(m.bglayer[y][x])
 
-			r := image.Rect(tileX*spriteSize, tileY*spriteSize, (tileX*spriteSize)+spriteSize, (tileY*spriteSize)+spriteSize)
+				r := image.Rect(tileX*spriteSize, tileY*spriteSize, (tileX*spriteSize)+spriteSize, (tileY*spriteSize)+spriteSize)
 
-			// r := image.Rect(m.bglayer[y][x]*spriteSize, 0, (m.bglayer[y][x]+1)*spriteSize, (m.bglayer[y][x]+1)*spriteSize)
-			op.SourceRect = &r
+				// r := image.Rect(m.bglayer[y][x]*spriteSize, 0, (m.bglayer[y][x]+1)*spriteSize, (m.bglayer[y][x]+1)*spriteSize)
+				op.SourceRect = &r
 
-			if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
-				return err
+				if m.game.world.nightTime {
+					op.ColorM.ChangeHSV(0.0, 1.0, 0.4)
+				}
+
+				if err := screen.DrawImage(m.bgSpriteSheet, op); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -609,28 +614,34 @@ func (b *Building) Update(screen *ebiten.Image) error {
 		spriteSize = 16
 	)
 
-	scale := ebiten.DeviceScaleFactor()
+	if !ebiten.IsDrawingSkipped() {
+		scale := ebiten.DeviceScaleFactor()
 
-	sw, sh := screen.Size()
-	// work out width/height scale factor based on percentage of screen size
-	swf := float64(sw / b.game.cameraWidth)
-	shf := float64(sh / b.game.cameraHeight)
+		sw, sh := screen.Size()
+		// work out width/height scale factor based on percentage of screen size
+		swf := float64(sw / b.game.cameraWidth)
+		shf := float64(sh / b.game.cameraHeight)
 
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(b.x+(b.width*spriteSize)), float64(b.y+(b.height*spriteSize)))
-	op.GeoM.Translate(float64(b.game.cameraX*-1)/2, float64(b.game.cameraY)/2)
-	op.GeoM.Scale(scale*swf, scale*shf)
-	op.GeoM.Scale(2, 2)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(float64(b.x+(b.width*spriteSize)), float64(b.y+(b.height*spriteSize)))
+		op.GeoM.Translate(float64(b.game.cameraX*-1)/2, float64(b.game.cameraY)/2)
+		op.GeoM.Scale(scale*swf, scale*shf)
+		op.GeoM.Scale(2, 2)
 
-	// crop/select sprite from the spritesheet
-	tileX, tileY := utils.SplitNumbers(b.tileXY)
+		// crop/select sprite from the spritesheet
+		tileX, tileY := utils.SplitNumbers(b.tileXY)
 
-	r := image.Rect(tileX, tileY, tileX+(spriteSize*b.width), tileY+(spriteSize*b.height))
+		r := image.Rect(tileX, tileY, tileX+(spriteSize*b.width), tileY+(spriteSize*b.height))
 
-	op.SourceRect = &r
+		op.SourceRect = &r
 
-	if err := screen.DrawImage(b.spritesheet, op); err != nil {
-		return err
+		if b.game.world.nightTime {
+			op.ColorM.ChangeHSV(0.0, 1.0, 0.4)
+		}
+
+		if err := screen.DrawImage(b.spritesheet, op); err != nil {
+			return err
+		}
 	}
 
 	return nil
