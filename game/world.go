@@ -238,19 +238,6 @@ func (m *Map) Update(screen *ebiten.Image) error {
 		}
 	}
 
-	if !ebiten.IsDrawingSkipped() && m.game.world.nightTime {
-		// Reset the maskedFgImage.
-		m.game.world.maskedFgImage.Fill(color.White)
-		op := &ebiten.DrawImageOptions{}
-		op.CompositeMode = ebiten.CompositeModeCopy
-		op.GeoM.Translate(float64(sw/2), float64(sw/2))
-		m.game.world.maskedFgImage.DrawImage(m.game.world.spotLightImage, op)
-
-		op = &ebiten.DrawImageOptions{}
-		op.CompositeMode = ebiten.CompositeModeSourceIn
-		m.game.world.maskedFgImage.DrawImage(m.game.world.fgImage, op)
-	}
-
 	if logging.CurrentLoggingLevel == logging.DebugLevel {
 		if time.Since(m.skippedTileLastOutputTime) > time.Second*3 {
 			logging.Debug(fmt.Sprintf("Skipped %d tiles", skippedTileCount))
