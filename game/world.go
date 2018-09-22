@@ -8,7 +8,6 @@ import (
 	_ "image/jpeg"
 	"log"
 	"math"
-	"math/rand"
 	"runtime"
 	"time"
 
@@ -95,15 +94,17 @@ func (m *Map) Init() error {
 
 	m.bglayer = make([][]int, m.bgheight)
 
+	random := &utils.Rand{}
+
 	// initial values of slices will be zero, so set random indexes to be grass or flowers or something else
 	for y := 0; y < len(m.bglayer); y++ {
 		newRow := make([]int, m.bgwidth)
 		for x := 0; x < len(m.bglayer); x++ {
 			newRow[x] = utils.CombineNumbers(float64(18), float64(9))
-			if y%(rand.Intn(4)+1) == 0 {
+			if y%(int(random.Next(10)+1)) == 0 {
 				var grassOnRow = 0
-				if x > 2 && rand.Intn(2) == 1 && grassOnRow < int(float64(m.bgwidth)*0.75) {
-					grass := rand.Intn(3)
+				if x > 2 && int(random.Next(2)) == 1 && grassOnRow < int(float64(m.bgwidth)*0.75) {
+					grass := int(random.Next(3))
 					if grass == 1 {
 						newRow[x] = utils.CombineNumbers(float64(18), float64(8))
 					} else if grass == 2 {
