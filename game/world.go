@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"image"
+	"image/color"
+	_ "image/jpeg"
 	"log"
+	"math"
 	"math/rand"
 	"runtime"
 	"time"
@@ -14,13 +17,17 @@ import (
 	"github.com/tauraamui/berrybun/utils"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/examples/resources/images"
 )
 
 type World struct {
-	game      *Game
-	wMap      *Map
-	player    *Player
-	nightTime bool
+	game           *Game
+	wMap           *Map
+	player         *Player
+	nightTime      bool
+	spotLightImage *ebiten.Image
+	maskedFgImage  *ebiten.Image
+	fgImage        *ebiten.Image
 }
 
 func (w *World) Init() {
@@ -31,6 +38,29 @@ func (w *World) Init() {
 	}
 	w.wMap.Init()
 	w.player.Init()
+
+	// Initialize the spot light image.
+	const r = 64
+	alphas := image.Point{r * 2, r * 2}
+	a := image.NewAlpha(image.Rectangle{image.ZP, alphas})
+	for j := 0; j < alphas.Y; j++ {
+		for i := 0; i < alphas.X; i++ {
+			// d is the distance between (i, j) and the (circle) center.
+			d := math.Sqrt(float64((i-r)*(i-r) + (j-r)*(j-r)))
+			// Alphas around the center are 0 and values outside of the circle are 0xff.
+			b := uint8(utils.Max(0, utils.Min(0xff, int(3*d*0xff/r)-2*0xff)))
+			a.SetAlpha(i, j, color.Alpha{b})
+		}
+	}
+	w.spotLightImage, _ = ebiten.NewImageFromImage(a, ebiten.FilterDefault)
+
+	w.maskedFgImage, _ = ebiten.NewImage(screenWidth, screenHeight, ebiten.FilterDefault)
+
+	img, _, err := image.Decode(bytes.NewReader(images.FiveYears_jpg))
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.fgImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
 }
 
 func (w *World) Update(screen *ebiten.Image) error {
@@ -206,6 +236,19 @@ func (m *Map) Update(screen *ebiten.Image) error {
 				}
 			}
 		}
+	}
+
+	if !ebiten.IsDrawingSkipped() && m.game.world.nightTime {
+		// Reset the maskedFgImage.
+		m.game.world.maskedFgImage.Fill(color.White)
+		op := &ebiten.DrawImageOptions{}
+		op.CompositeMode = ebiten.CompositeModeCopy
+		op.GeoM.Translate(float64(sw/2), float64(sw/2))
+		m.game.world.maskedFgImage.DrawImage(m.game.world.spotLightImage, op)
+
+		op = &ebiten.DrawImageOptions{}
+		op.CompositeMode = ebiten.CompositeModeSourceIn
+		m.game.world.maskedFgImage.DrawImage(m.game.world.fgImage, op)
 	}
 
 	if logging.CurrentLoggingLevel == logging.DebugLevel {

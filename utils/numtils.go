@@ -14,3 +14,17 @@ func SplitNumbers(n int) (int, int) {
 	b := c*(c+3)/2 - n
 	return a, b
 }
+
+func Max(a, b int) int {
+	if a < b {
+		return b
+	}
+	return a
+}
+
+func Min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
