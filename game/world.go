@@ -61,13 +61,15 @@ func (w *World) resetMaskImages(screen *ebiten.Image) {
 }
 
 func (w *World) Update(screen *ebiten.Image) error {
-	if !w.initialisedMask {
-		w.resetMaskImages(screen)
-	}
 	w.wMap.Update(screen)
 	w.player.Update(screen)
 
 	if !ebiten.IsDrawingSkipped() && w.nightTime {
+
+		if !w.initialisedMask {
+			w.resetMaskImages(screen)
+		}
+
 		sw, sh := screen.Size()
 		// Reset the maskedFgImage.
 		w.maskedFgImage.Fill(color.Black)
