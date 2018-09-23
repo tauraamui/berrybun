@@ -162,8 +162,6 @@ func (m *Map) Update(screen *ebiten.Image) error {
 
 	scale := ebiten.DeviceScaleFactor()
 
-	skippedTileCount := 0
-
 	sw, sh := screen.Size()
 	// work out width/height scale factor based on percentage of screen size
 	swf := float64(sw / m.game.cameraWidth)
@@ -191,13 +189,11 @@ func (m *Map) Update(screen *ebiten.Image) error {
 
 			// if the tile's x axis pos is further than the right edge of the screen, skip rendering tile
 			if int(tileXPos) > m.game.cameraX+sw {
-				skippedTileCount++
 				continue
 			}
 
 			// if the tile's x axis pos is between the left and right edges of the screen, skip rendering tile
 			if int(tileXPos) < m.game.cameraX && int(tileXPos+tileWidth) < m.game.cameraX {
-				skippedTileCount++
 				continue
 			}
 
