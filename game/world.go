@@ -4,27 +4,26 @@ import (
 	"bytes"
 	"image"
 	"image/color"
-	_ "image/jpeg"
 	"log"
 	"math"
 	"runtime"
 	"time"
 
+	"github.com/hajimehoshi/ebiten"
 	"github.com/tauraamui/berrybun/res"
 	"github.com/tauraamui/berrybun/utils"
-
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/examples/resources/images"
 )
 
 type World struct {
-	game           *Game
-	wMap           *Map
-	player         *Player
-	nightTime      bool
-	spotLightImage *ebiten.Image
-	maskedFgImage  *ebiten.Image
-	fgImage        *ebiten.Image
+	game            *Game
+	wMap            *Map
+	player          *Player
+	nightTime       bool
+	spotLightImage  *ebiten.Image
+	bgImage         *ebiten.Image
+	maskedFgImage   *ebiten.Image
+	fgImage         *ebiten.Image
+	initialisedMask bool
 }
 
 func (w *World) Init() {
@@ -35,9 +34,14 @@ func (w *World) Init() {
 	}
 	w.wMap.Init()
 	w.player.Init()
+}
+
+func (w *World) resetMaskImages(screen *ebiten.Image) {
+
+	sw, sh := screen.Size()
 
 	// Initialize the spot light image.
-	const r = 64
+	const r = 1200
 	alphas := image.Point{r * 2, r * 2}
 	a := image.NewAlpha(image.Rectangle{image.ZP, alphas})
 	for j := 0; j < alphas.Y; j++ {
@@ -50,17 +54,16 @@ func (w *World) Init() {
 		}
 	}
 	w.spotLightImage, _ = ebiten.NewImageFromImage(a, ebiten.FilterDefault)
-
-	w.maskedFgImage, _ = ebiten.NewImage(screenWidth, screenHeight, ebiten.FilterDefault)
-
-	img, _, err := image.Decode(bytes.NewReader(images.FiveYears_jpg))
-	if err != nil {
-		log.Fatal(err)
-	}
-	w.fgImage, _ = ebiten.NewImageFromImage(img, ebiten.FilterDefault)
+	w.maskedFgImage, _ = ebiten.NewImage(sw, sh, ebiten.FilterDefault)
+	w.fgImage, _ = ebiten.NewImage(sw, sh, ebiten.FilterDefault)
+	w.fgImage.Fill(color.Black)
+	w.initialisedMask = true
 }
 
 func (w *World) Update(screen *ebiten.Image) error {
+	if !w.initialisedMask {
+		w.resetMaskImages(screen)
+	}
 	w.wMap.Update(screen)
 	w.player.Update(screen)
 	return nil
@@ -235,6 +238,23 @@ func (m *Map) Update(screen *ebiten.Image) error {
 
 	for i := 0; i < len(m.buildings); i++ {
 		m.buildings[i].Update(screen)
+	}
+
+	if !ebiten.IsDrawingSkipped() && m.game.world.nightTime {
+		// Reset the maskedFgImage.
+		m.game.world.maskedFgImage.Fill(color.Black)
+		op := &ebiten.DrawImageOptions{}
+		op.CompositeMode = ebiten.CompositeModeCopy
+		op.GeoM.Translate(float64(sw/2)-1200, float64(sh/2)-1200)
+		// op.GeoM.Scale(scale*swf, scale*shf)
+		m.game.world.maskedFgImage.DrawImage(m.game.world.spotLightImage, op)
+
+		op = &ebiten.DrawImageOptions{}
+		op.CompositeMode = ebiten.CompositeModeSourceIn
+		m.game.world.maskedFgImage.DrawImage(m.game.world.fgImage, op)
+
+		op = &ebiten.DrawImageOptions{}
+		screen.DrawImage(m.game.world.maskedFgImage, op)
 	}
 
 	return nil
