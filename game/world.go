@@ -2,7 +2,6 @@ package game
 
 import (
 	"bytes"
-	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
@@ -11,7 +10,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/tacusci/logging"
 	"github.com/tauraamui/berrybun/res"
 	"github.com/tauraamui/berrybun/utils"
 
@@ -236,13 +234,6 @@ func (m *Map) Update(screen *ebiten.Image) error {
 					return err
 				}
 			}
-		}
-	}
-
-	if logging.CurrentLoggingLevel == logging.DebugLevel {
-		if time.Since(m.skippedTileLastOutputTime) > time.Second*3 {
-			logging.Debug(fmt.Sprintf("Skipped %d tiles", skippedTileCount))
-			m.skippedTileLastOutputTime = time.Now()
 		}
 	}
 
