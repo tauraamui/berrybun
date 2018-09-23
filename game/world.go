@@ -66,6 +66,25 @@ func (w *World) Update(screen *ebiten.Image) error {
 	}
 	w.wMap.Update(screen)
 	w.player.Update(screen)
+
+	if !ebiten.IsDrawingSkipped() && w.nightTime {
+		sw, sh := screen.Size()
+		// Reset the maskedFgImage.
+		w.maskedFgImage.Fill(color.Black)
+		op := &ebiten.DrawImageOptions{}
+		op.CompositeMode = ebiten.CompositeModeCopy
+		op.GeoM.Translate(float64(sw/2)-1200, float64(sh/2)-1200)
+		// op.GeoM.Scale(scale*swf, scale*shf)
+		w.maskedFgImage.DrawImage(w.spotLightImage, op)
+
+		op = &ebiten.DrawImageOptions{}
+		op.CompositeMode = ebiten.CompositeModeSourceIn
+		w.maskedFgImage.DrawImage(w.fgImage, op)
+
+		op = &ebiten.DrawImageOptions{}
+		screen.DrawImage(w.maskedFgImage, op)
+	}
+
 	return nil
 }
 
@@ -238,23 +257,6 @@ func (m *Map) Update(screen *ebiten.Image) error {
 
 	for i := 0; i < len(m.buildings); i++ {
 		m.buildings[i].Update(screen)
-	}
-
-	if !ebiten.IsDrawingSkipped() && m.game.world.nightTime {
-		// Reset the maskedFgImage.
-		m.game.world.maskedFgImage.Fill(color.Black)
-		op := &ebiten.DrawImageOptions{}
-		op.CompositeMode = ebiten.CompositeModeCopy
-		op.GeoM.Translate(float64(sw/2)-1200, float64(sh/2)-1200)
-		// op.GeoM.Scale(scale*swf, scale*shf)
-		m.game.world.maskedFgImage.DrawImage(m.game.world.spotLightImage, op)
-
-		op = &ebiten.DrawImageOptions{}
-		op.CompositeMode = ebiten.CompositeModeSourceIn
-		m.game.world.maskedFgImage.DrawImage(m.game.world.fgImage, op)
-
-		op = &ebiten.DrawImageOptions{}
-		screen.DrawImage(m.game.world.maskedFgImage, op)
 	}
 
 	return nil
